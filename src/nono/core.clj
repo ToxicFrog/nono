@@ -22,7 +22,8 @@
     :rows [row clues]
     :cols [col clues]"
   [lines]
-  {:grid lines
+  {:title "(unknown)"
+   :grid lines
    :cols (map make-clues (cols lines))
    :rows (map make-clues lines)})
 
@@ -33,5 +34,5 @@
   (dorun (map println (nono :cols)))
   (dorun (map println (nono :grid)))
   (dorun (map println (nono :rows)))
-  (gui/run)
+  (gui/run nono)
   )

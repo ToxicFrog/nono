@@ -4,6 +4,7 @@
                                          MultiWindowTextGUI DefaultWindowManager Borders
                                          FatWindowDecorationRenderer Panels Component AbstractComponent
                                          LinearLayout Direction GridLayout$Alignment
+                                         LinearLayout$Alignment
                                          BorderLayout BorderLayout$Location
                                          EmptyWindowDecorationRenderer AbstractWindow Window$Hint
                                          ComponentRenderer AbstractComponent Separator TextBox)
@@ -17,12 +18,17 @@
           TextColor$ANSI/DEFAULT)
   )
 
+(defn size [w h] (TerminalSize. w h))
+
 (defn placeholder
   ([text] (Label. text))
   ([text fg bg]
    (doto (Label. text)
      (.setBackgroundColor (colour fg))
      (.setForegroundColour (colour bg)))))
+
+(defn vsep [] (doto (Separator. Direction/VERTICAL) (.setPreferredSize (size 1 4))))
+(defn hsep [] (doto (Separator. Direction/HORIZONTAL) (.setPreferredSize (size 10 1))))
 
 (defn theme
   "Return a SimpleTheme with the given foreground and background colours."
@@ -49,15 +55,30 @@
                 Window$Hint/FIT_TERMINAL_WINDOW
                 Window$Hint/NO_DECORATIONS])))
 
+(defn centered-window
+  "Returns an empty BasicWindow with no decorations that fills the screen."
+  [title]
+  (doto (BasicWindow. title)
+    (.setHints [Window$Hint/CENTERED])))
+
+(defn add-components
+  ([container components]
+   (reduce
+     #(doto %1 (.addComponent %2))
+     container components))
+  ([container components hints]
+   (reduce
+     #(doto %1 (.addComponent %2 hints))
+     container components))
+  )
+
 (defn grid-panel
   "Return a Panel containing a Wx? GridLayout and the given components."
   [w & components]
   (let [panel (doto (Panel.)
                 (.setLayoutManager (doto (GridLayout. w)
-                                     (.setHorizontalSpacing 0)
-                                     (.setLeftMarginSize 0)
-                                     (.setRightMarginSize 0))))
+                                     (.setHorizontalSpacing 1)
+                                     (.setLeftMarginSize 1)
+                                     (.setRightMarginSize 1))))
         ]
-    (reduce
-      #(doto %1 (.addComponent %2))
-      panel components)))
+    (add-components panel components)))
