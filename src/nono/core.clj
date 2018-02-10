@@ -22,10 +22,10 @@
     :rows [row clues]
     :cols [col clues]"
   [lines]
-  {:title "(unknown)"
-   :grid lines
-   :cols (map make-clues (cols lines))
-   :rows (map make-clues lines)})
+  {:title (first lines)
+   :grid (rest lines)
+   :cols (map make-clues (cols (rest lines)))
+   :rows (map make-clues (rest lines))})
 
 (def nono
   (-> "data/16903" slurp string/split-lines ->nono))
