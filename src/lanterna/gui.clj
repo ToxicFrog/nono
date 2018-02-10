@@ -27,7 +27,7 @@
      (.setBackgroundColor (colour fg))
      (.setForegroundColour (colour bg)))))
 
-(defn vsep [] (doto (Separator. Direction/VERTICAL) (.setPreferredSize (size 1 4))))
+(defn vsep [] (Separator. Direction/VERTICAL))
 (defn hsep [] (Separator. Direction/HORIZONTAL))
 
 (defn theme
