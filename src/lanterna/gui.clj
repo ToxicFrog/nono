@@ -17,8 +17,12 @@
           TextColor$ANSI/DEFAULT)
   )
 
-; (defn- placeholder [c w h]
-;   (EmptySpace. (colour c) (TerminalSize. (int w) (int h))))
+(defn placeholder
+  ([text] (Label. text))
+  ([text fg bg]
+   (doto (Label. text)
+     (.setBackgroundColor (colour fg))
+     (.setForegroundColour (colour bg)))))
 
 (defn theme
   "Return a SimpleTheme with the given foreground and background colours."
@@ -44,3 +48,16 @@
     (.setHints [Window$Hint/FULL_SCREEN
                 Window$Hint/FIT_TERMINAL_WINDOW
                 Window$Hint/NO_DECORATIONS])))
+
+(defn grid-panel
+  "Return a Panel containing a Wx? GridLayout and the given components."
+  [w & components]
+  (let [panel (doto (Panel.)
+                (.setLayoutManager (doto (GridLayout. w)
+                                     (.setHorizontalSpacing 0)
+                                     (.setLeftMarginSize 0)
+                                     (.setRightMarginSize 0))))
+        ]
+    (reduce
+      #(doto %1 (.addComponent %2))
+      panel components)))
