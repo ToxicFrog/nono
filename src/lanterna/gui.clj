@@ -28,7 +28,7 @@
      (.setForegroundColour (colour bg)))))
 
 (defn vsep [] (doto (Separator. Direction/VERTICAL) (.setPreferredSize (size 1 4))))
-(defn hsep [] (doto (Separator. Direction/HORIZONTAL) (.setPreferredSize (size 10 1))))
+(defn hsep [] (Separator. Direction/HORIZONTAL))
 
 (defn theme
   "Return a SimpleTheme with the given foreground and background colours."
@@ -77,8 +77,9 @@
   [w & components]
   (let [panel (doto (Panel.)
                 (.setLayoutManager (doto (GridLayout. w)
-                                     (.setHorizontalSpacing 1)
-                                     (.setLeftMarginSize 1)
-                                     (.setRightMarginSize 1))))
+                                     (.setHorizontalSpacing 0)
+                                     (.setLeftMarginSize 0)
+                                     (.setRightMarginSize 0))))
         ]
-    (add-components panel components)))
+    (add-components panel components
+                    (GridLayout/createHorizontallyFilledLayoutData 1))))

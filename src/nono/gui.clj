@@ -1,5 +1,6 @@
 (ns nono.gui
   (:require [lanterna.gui :as lgui]
+            [nono.hints :as hints]
             [clojure.string :as string])
   (:import (com.googlecode.lanterna.gui2 Label Borders LinearLayout Panel Direction))
   )
@@ -19,35 +20,11 @@
     (->> (nonogram :grid) (map double-string) (string/join \newline) (Label.))
     (Borders/doubleLine)))
 
-(defn row-hint [row]
-  (Label. (string/join \space row)))
-(defn row-hints [rows]
-  (let [panel (doto (Panel.)
-                (.setLayoutManager (doto (LinearLayout.)
-                                     (.setSpacing 0))))
-        sep (lgui/hsep)
-        ]
-    (.addComponent panel sep)
-    (lgui/add-components panel (map row-hint rows))
-  ))
-
-
-(defn col-hint [col]
-  (Label. (string/join \newline col)))
-(defn col-hints [cols]
-  (let [panel (doto (Panel.)
-                (.setLayoutManager (doto (LinearLayout. Direction/HORIZONTAL)
-                                     (.setSpacing 0)))
-                (.addComponent (lgui/vsep)))
-        ]
-    (lgui/add-components panel (map col-hint cols)))
-  )
-
 (defn- nono-panel [nonogram]
   (lgui/grid-panel 2
                    (statline nonogram)
-                   (-> nonogram :cols col-hints)
-                   (-> nonogram :rows row-hints)
+                   (-> nonogram :cols hints/col-hints)
+                   (-> nonogram :rows hints/row-hints)
                    (playfield nonogram)))
 
 (defn run [nonogram]
