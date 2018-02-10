@@ -1,0 +1,19 @@
+UI: 4x4 gridbag
+top left: status information (time elapsed, number of moves, palette, etc)
+top right: vertical hints
+bottom left: horizontal hints
+bottom right: playfield
+
+## Lanterna
+
+Terminal: lowest-level interface, basically a vt220
+Screen: layer on top of terminal, basically a framebuffer
+  set cell
+  clear
+  refresh
+  readInput/pollInput
+  doResizeIfNecessary should be called at the start of each drawing pass to handle SIGWINCH events
+TextGraphics: layer on top of screen, convenience functions for drawing strings, shapes, setting default colours, etc.
+MultiWindowTextGUI: the only concrete GUI implementation, runs on top of Screen (automatically grabs the TextGraphics and stuff).
+Window: the basic element of the MWTGUI. Window layout is handled by the WM in the MWTGUI; the window can have hints attached to it to modify this behaviour. By default there's no bindings for focus switching, and all windows are modal; you create one and then call window.waitUntilClosed() to block until it goes away.
+A window can only contain one widget. Typically this is a Panel, which has a layout manager and lets you put multiple other components into it.
