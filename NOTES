@@ -2,8 +2,28 @@
 There's a nonograms.org downloader at
 https://github.com/ThomasR/nonogram-solver/tree/develop/puzzles/nonograms.org
 
-Game state:
+## Graphics
+
+All cells are doubled, i.e. one nonogram cell is 2em wide.
+
+Filled: "██"
+Maybe: "╺╸" or "╶╴" or "░░"
+Empty: "  " or "[]" or "⌜⌟" or (with underline) "▏▕"
+
+vvvvvvvvvvvv
+▏⌟^^
+vvvvvvvvvvvv
+[]⟔⟓⎡⎦⌜⌟
+
+## Game state
+
+Immutable:
+- name (but should probably be hidden until solved)
+- size of playfield
+- canonical playfield contents
+Mutable:
 - current contents of playfield
+- total number of solved squares
 - x,y position of cursor
 
 ## Functional requirements

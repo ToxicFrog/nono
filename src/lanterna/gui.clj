@@ -58,7 +58,7 @@
 (defn centered-window
   "Returns an empty BasicWindow with decorations, centered."
   [title]
-  (doto (BasicWindow. (str \╼ title \╾))
+  (doto (BasicWindow. (str "╼ " title " ╾"))
     (.setHints [Window$Hint/CENTERED])))
 
 (defn add-components

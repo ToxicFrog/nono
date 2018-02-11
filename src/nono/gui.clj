@@ -2,16 +2,16 @@
   (:require [lanterna.gui :as lgui]
             [nono.hints :as hints]
             [clojure.string :as string])
-  (:import (com.googlecode.lanterna.gui2 Label Borders LinearLayout Panel Direction))
+  (:import (com.googlecode.lanterna.gui2 Label))
   )
 
 (defn- statline [nonogram]
   (Label. (str
-            (nonogram :title) \newline
+            ; (nonogram :title) \newline
             (count (nonogram :cols)) \× (count (nonogram :rows)) \newline
             )))
 
-(def doubler {\# "██" \. "╺╸" \X "░░"})
+(def doubler {\# "██" \. "╶╴"})
 (defn- double-string [string]
   (->> string (map doubler) (apply str)))
 
@@ -31,7 +31,7 @@
                    (playfield nonogram)))
 
 (defn run [nonogram]
-  (let [window (doto (lgui/centered-window "Nonograms")
+  (let [window (doto (lgui/centered-window (nonogram :title))
                  (.setComponent (nono-panel nonogram)))
         ]
     (doto (lgui/text-gui)
