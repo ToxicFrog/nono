@@ -1,38 +1,34 @@
 (ns nono.gui
-  (:require [lanterna.gui :as lgui]
+  (:require [lanterna.widgets :refer [Window VSep HSep Label GridPanel]]
+            [lanterna.gui :as lgui]
             [nono.hints :as hints]
             [clojure.string :as string])
-  (:import (com.googlecode.lanterna.gui2 Label))
   )
 
 (defn- statline [nonogram]
-  (Label. (str
-            ; (nonogram :title) \newline
-            (count (nonogram :cols)) \× (count (nonogram :rows)) \newline
-            )))
+  (Label (str
+          ; (nonogram :title) \newline
+          (count (nonogram :cols)) \× (count (nonogram :rows)) \newline
+          )))
 
 (def doubler {\# "██" \. "╶╴"})
 (defn- double-string [string]
   (->> string (map doubler) (apply str)))
 
 (defn- playfield [nonogram]
-  (->> (nonogram :grid) (map double-string) (string/join \newline) (Label.)))
+  (->> (nonogram :grid) (map double-string) (string/join \newline) Label))
 
 (defn- nono-panel [nonogram]
-  (lgui/grid-panel 3
-                   (statline nonogram)
-                   (lgui/vsep)
-                   (-> nonogram :cols hints/col-hints)
+  (GridPanel
+    :width 3
+    :children [(statline nonogram) (VSep) (-> nonogram :cols hints/col-hints)
+               (HSep) (Label "┼") (HSep)
 
-                   (lgui/hsep) (Label. "┼") (lgui/hsep)
-
-                   (-> nonogram :rows hints/row-hints)
-                   (lgui/vsep)
-                   (playfield nonogram)))
+               (-> nonogram :rows hints/row-hints) (VSep) (playfield nonogram)]
+    ))
 
 (defn run [nonogram]
-  (let [window (doto (lgui/centered-window (nonogram :title))
-                 (.setComponent (nono-panel nonogram)))
+  (let [window (Window (nonogram :title) (nono-panel nonogram) :CENTERED)
         ]
     (doto (lgui/text-gui)
       (.addWindow window)
