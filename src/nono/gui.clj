@@ -31,10 +31,9 @@
                    (playfield nonogram)))
 
 (defn run [nonogram]
-  (let [gui (lgui/text-gui)
-        window (doto (lgui/centered-window "Nonograms")
+  (let [window (doto (lgui/centered-window "Nonograms")
                  (.setComponent (nono-panel nonogram)))
         ]
-    (doto gui
+    (doto (lgui/text-gui)
       (.addWindow window)
       (.waitForWindowToClose window))))
