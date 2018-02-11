@@ -11,7 +11,7 @@
             (count (nonogram :cols)) \× (count (nonogram :rows)) \newline
             )))
 
-(def doubler {\# "██" \. "  "})
+(def doubler {\# "██" \. "╺╸" \X "░░"})
 (defn- double-string [string]
   (->> string (map doubler) (apply str)))
 

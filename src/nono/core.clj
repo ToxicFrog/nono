@@ -31,8 +31,8 @@
   (-> "data/16903" slurp string/split-lines ->nono))
 
 (defn -main [& args]
-  (dorun (map println (nono :cols)))
-  (dorun (map println (nono :grid)))
-  (dorun (map println (nono :rows)))
+  ; (dorun (map println (nono :cols)))
+  ; (dorun (map println (nono :grid)))
+  ; (dorun (map println (nono :rows)))
   (gui/run nono)
   )

@@ -73,17 +73,15 @@
   )
 
 (defn dense-grid [w]
-  (doto (Panel.)
-    (.setLayoutManager
-      (doto (GridLayout. w)
-        (.setHorizontalSpacing 0)
-        (.setLeftMarginSize 0)
-        (.setRightMarginSize 0)))))
+  (doto (GridLayout. w)
+    (.setHorizontalSpacing 0)
+    (.setLeftMarginSize 0)
+    (.setRightMarginSize 0)))
 
 (defn grid-panel
   "Return a Panel containing a Wx? GridLayout and the given components."
   [w & components]
-  (let [panel (dense-grid w)
+  (let [panel (doto (Panel.) (.setLayoutManager (dense-grid w)))
         ]
     (add-components panel components
                     (GridLayout/createLayoutData GridLayout$Alignment/FILL GridLayout$Alignment/FILL))))

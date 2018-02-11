@@ -11,72 +11,72 @@
 (def fill-alignment
   (LinearLayout/createLayoutData LinearLayout$Alignment/Fill))
 
-(defn- line-hint
-  "Create the hints for a single row or col. A line of hints is a Panel containing a line of Labels with spacing between them."
-  [dir spacing line]
+(defn- BottomJustifiedColumn [children]
   (let [panel (doto (Panel.)
-                (.setLayoutManager
-                  (doto (LinearLayout. dir) (.setSpacing spacing))))
-        ]
-    (->> line
-         (map str)
-         (map #(Label. %1))
-         (map #(.addComponent panel %1 end-alignment))
-         dorun)
-    panel))
-
-(defn- line-hint2
-  "Create the hints for a single row or col. A line of hints is a Panel containing a line of Labels with spacing between them."
-  [dir spacing line]
-  (let [panel (doto (Panel.)
-                (.setLayoutManager
-                  (doto (GridLayout. 1)
-                    (.setHorizontalSpacing 0)
-                    (.setLeftMarginSize 0)
-                    (.setRightMarginSize 0))))
+                (.setLayoutManager (lgui/dense-grid 1)))
         ]
     (.addComponent panel (Label. "")
                    (GridLayout/createLayoutData
                      GridLayout$Alignment/FILL GridLayout$Alignment/FILL
-                     false true))
-    (->> line
-         (map str)
-         (map #(Label. %1))
+                     true true))
+    (->> children
          (map #(.addComponent panel %1
                               (GridLayout/createHorizontallyEndAlignedLayoutData 1)))
          dorun)
     panel))
 
-(defn row-hints [rows]
-  "Create the hints for the rows."
+(defn- RightJustifiedRow [spacing children]
   (let [panel (doto (Panel.)
-                (.setLayoutManager
-                  (doto (LinearLayout. Direction/VERTICAL) (.setSpacing 0))))
-        hints (map (partial line-hint Direction/HORIZONTAL 1) rows)
+                (.setLayoutManager (-> children count inc lgui/dense-grid (.setHorizontalSpacing spacing))))
         ]
-    (->> hints
-         (take-nth 2)
-         (map #(.setTheme %1 (lgui/theme "#d0d0d0" "#202020")))
+    (.addComponent panel (Label. "")
+                   (GridLayout/createLayoutData
+                     GridLayout$Alignment/FILL GridLayout$Alignment/FILL
+                     true true))
+    (->> children
+         (map #(.addComponent panel %1
+                              (GridLayout/createLayoutData
+                                GridLayout$Alignment/FILL GridLayout$Alignment/FILL
+                                false false)))
          dorun)
-    (lgui/add-components panel hints fill-alignment)
-  ))
+    panel))
+
+(defn- linear-panel [dir]
+  (doto (Panel.)
+    (.setLayoutManager
+      (doto (LinearLayout. dir) (.setSpacing 0)))))
 
 (defn- set-width [w widget]
   (doto widget
     (.setPreferredSize
       (-> widget (.getPreferredSize) (.withColumns w)))))
 
-(defn col-hints [cols]
-  (let [panel (doto (Panel.)
-                (.setLayoutManager
-                  (doto (LinearLayout. Direction/HORIZONTAL) (.setSpacing 0))))
-        hints (->> cols
-                (map (partial line-hint2 Direction/VERTICAL 0))
-                (map (partial set-width 2)))
+(defn- create-hints [dir hints]
+  (let [panel (linear-panel dir)
         ]
-    (->> hints
+    (->> (rest hints)
          (take-nth 2)
          (map #(.setTheme %1 (lgui/theme "#d0d0d0" "#202020")))
          dorun)
     (lgui/add-components panel hints fill-alignment)
-  ))
+    ))
+
+(defn row-hint [row]
+  (->> row
+       (map #(Label. (str %1)))
+       (RightJustifiedRow 1)))
+
+(defn row-hints [rows]
+  "Create the hints for the rows."
+  (create-hints Direction/VERTICAL
+                (map row-hint rows)))
+
+(defn col-hint [col]
+  (->> col
+       (map #(Label. (format "%2d" %1)))
+       ;(map #(set-width 2 %1))
+       (BottomJustifiedColumn)))
+
+(defn col-hints [cols]
+  (create-hints Direction/HORIZONTAL
+                (map col-hint cols)))

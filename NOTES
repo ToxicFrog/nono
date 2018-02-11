@@ -1,8 +1,19 @@
-UI: 4x4 gridbag
-top left: status information (time elapsed, number of moves, palette, etc)
-top right: vertical hints
-bottom left: horizontal hints
-bottom right: playfield
+
+There's a nonograms.org downloader at
+https://github.com/ThomasR/nonogram-solver/tree/develop/puzzles/nonograms.org
+
+Game state:
+- current contents of playfield
+- x,y position of cursor
+
+## Functional requirements
+
+Hilight the currently selected box. Needs to be compatible with existing grid features, so probably a colour hilight, e.g. make cyan instead of white.
+Corresponding v and h hints should hilight as well.
+v hints need subtle shading to differentiate columns.
+Individual cells need at least three states: solid, empty, and unknown -- all initialized to unknown. All of these need to be hilightable! Perhaps · for unknown?
+Nice to have: dim out hints once satisfied.
+Nice to have: once all hints for a row/col are satisfied, mark other cells in that line empty.
 
 ## Lanterna
 
