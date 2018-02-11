@@ -57,6 +57,8 @@
    "NO_POST_RENDERING" Window$Hint/NO_POST_RENDERING
    })
 
+(defn Button [text handler] (Label (str "[" text "]")))
+
 (defn Window
   "Create a BasicWindow with the given child component and, if specified, the given hints (which map to values of the Window$Hint enum, e.g. :CENTERED or :FULL_SCREEN)."
   ([title child]

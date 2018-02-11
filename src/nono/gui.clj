@@ -1,7 +1,8 @@
 (ns nono.gui
-  (:require [lanterna.widgets :refer [Window VSep HSep Label GridPanel]]
+  (:require [lanterna.widgets :refer [Window VSep HSep Label GridPanel Button]]
             [lanterna.gui :as lgui]
             [nono.hints :as hints]
+            [nono.nonogram :as ng]
             [clojure.string :as string])
   )
 
@@ -12,19 +13,23 @@
           )))
 
 (def doubler {\# "██" \. "╶╴"})
-(defn- double-string [string]
-  (->> string (map doubler) (apply str)))
+(defn- CellButton [[[x y] cell]]
+  (Button (doubler cell)
+          (fn [] (println "Button at " x "," y " pressed!"))))
 
-(defn- playfield [nonogram]
-  (->> (nonogram :grid) (map double-string) (string/join \newline) Label))
+(defn- playfield
+  [nonogram]
+  (GridPanel
+    :width (nonogram :width)
+    :children (map CellButton (ng/cells nonogram))))
 
 (defn- nono-panel [nonogram]
   (GridPanel
     :width 3
-    :children [(statline nonogram) (VSep) (-> nonogram :cols hints/col-hints)
+    :children [(statline nonogram) (VSep) (-> nonogram :col-hints hints/col-hints)
                (HSep) (Label "┼") (HSep)
 
-               (-> nonogram :rows hints/row-hints) (VSep) (playfield nonogram)]
+               (-> nonogram :row-hints hints/row-hints) (VSep) (playfield nonogram)]
     ))
 
 (defn run [nonogram]
