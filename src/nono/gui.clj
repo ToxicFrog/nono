@@ -16,15 +16,18 @@
   (->> string (map doubler) (apply str)))
 
 (defn- playfield [nonogram]
-  (.withBorder
-    (->> (nonogram :grid) (map double-string) (string/join \newline) (Label.))
-    (Borders/doubleLine)))
+  (->> (nonogram :grid) (map double-string) (string/join \newline) (Label.)))
 
 (defn- nono-panel [nonogram]
-  (lgui/grid-panel 2
+  (lgui/grid-panel 3
                    (statline nonogram)
+                   (lgui/vsep)
                    (-> nonogram :cols hints/col-hints)
+
+                   (lgui/hsep) (Label. "┼") (lgui/hsep)
+
                    (-> nonogram :rows hints/row-hints)
+                   (lgui/vsep)
                    (playfield nonogram)))
 
 (defn run [nonogram]

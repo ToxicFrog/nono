@@ -56,9 +56,9 @@
                 Window$Hint/NO_DECORATIONS])))
 
 (defn centered-window
-  "Returns an empty BasicWindow with no decorations that fills the screen."
+  "Returns an empty BasicWindow with decorations, centered."
   [title]
-  (doto (BasicWindow. title)
+  (doto (BasicWindow. (str \╼ title \╾))
     (.setHints [Window$Hint/CENTERED])))
 
 (defn add-components
@@ -82,4 +82,4 @@
                                      (.setRightMarginSize 0))))
         ]
     (add-components panel components
-                    (GridLayout/createHorizontallyFilledLayoutData 1))))
+                    (GridLayout/createLayoutData GridLayout$Alignment/FILL GridLayout$Alignment/FILL))))

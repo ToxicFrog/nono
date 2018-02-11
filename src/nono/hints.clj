@@ -23,7 +23,6 @@
                 (.setLayoutManager
                   (doto (LinearLayout. Direction/VERTICAL) (.setSpacing 0))))
         ]
-    (.addComponent panel (lgui/hsep) (LinearLayout/createLayoutData LinearLayout$Alignment/Fill))
     (lgui/add-components
       panel (map (partial line-hint Direction/HORIZONTAL 1) rows)
       (LinearLayout/createLayoutData LinearLayout$Alignment/End))
@@ -39,7 +38,6 @@
                 (.setLayoutManager
                   (doto (LinearLayout. Direction/HORIZONTAL) (.setSpacing 0))))
         ]
-    (.addComponent panel (lgui/vsep) (LinearLayout/createLayoutData LinearLayout$Alignment/Fill))
     (lgui/add-components
       panel
       (->> cols
