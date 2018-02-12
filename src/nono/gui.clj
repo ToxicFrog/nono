@@ -8,8 +8,7 @@
 
 (defn- statline [nonogram]
   (Label (str
-          ; (nonogram :title) \newline
-          (count (nonogram :cols)) \× (count (nonogram :rows)) \newline
+          (nonogram :width) \× (nonogram :height)
           )))
 
 (def doubler {:full "██" :empty "╶ " :??? "░░"})
