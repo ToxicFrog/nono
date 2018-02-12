@@ -19,9 +19,48 @@
 
 (defn Size [w h] (TerminalSize. w h))
 
-(defn Theme
-  "Return a SimpleTheme with the given foreground and background colours."
-  [fg bg] (SimpleTheme. (Colour fg) (Colour bg) (into-array SGR [])))
+(defn- as-theme-arg
+  "Convert a lexical token into an argument suitable for a ThemeDefinition
+  field setter. In practice, this means strings starting with # get wrapped in
+  a (Colour ...) call, and vectors get wrapper in (into-array SGR ...).
+  Everything else is left alone."
+  [token]
+  (cond
+    (and (string? token) (= \# (first token))) `(Colour ~token)
+    (and (vector? token)) `(into-array SGR [])
+    :else token))
+
+(defmacro Theme
+  "Creates a SimpleTheme with the relevant widgets overridden.
+  Overrides have the form:
+    (Class fg bg
+      (CursorVisible true)
+      (Active fg bg [sgr])
+      ...)
+  String arguments starting with # will be automatically converted into Colours,
+  and vector arguments will be automatically converted into SGR arrays."
+  [fg bg & overrides]
+  (let [theme (gensym "theme")
+        make-state-override
+        (fn [[state & args]]
+          ; Assume the head of the sexpr is a field setter name without the
+          ; leading .set, so (Active ...) turns into (.setActive ...)
+          `(~(symbol (str ".set" state)) ~@(map as-theme-arg args)))
+        make-type-override
+        (fn [[type fg bg & state-overrides]]
+          ; Each state override ends up as a (doto) clause operating on the
+          ; theme definition returned by theme.addOverride(type)
+          ; Individual expressions in the (doto) are derived from the
+          ; state-overrides.
+          `(doto (.addOverride ~theme ~(symbol (str "com.googlecode.lanterna.gui2." type))
+                               (Colour ~fg) (Colour ~bg) (into-array SGR []))
+             ~@(map make-state-override state-overrides)))
+        ]
+    ; Turn it into a SimpleTheme. constructor followed by a series of doto
+    ; clauses that .addOverride overrides for each type.
+    `(let [~theme (SimpleTheme. (Colour ~fg) (Colour ~bg) (into-array SGR []))]
+       ~@(map make-type-override overrides)
+       ~theme)))
 
 (defn LinearAlignment [align]
   (com.googlecode.lanterna.gui2.LinearLayout/createLayoutData
