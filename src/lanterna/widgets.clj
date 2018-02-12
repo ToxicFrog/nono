@@ -44,6 +44,10 @@
 (defn VSep [] (Separator. com.googlecode.lanterna.gui2.Direction/VERTICAL))
 (defn HSep [] (Separator. com.googlecode.lanterna.gui2.Direction/HORIZONTAL))
 
+(defn Button [text handler]
+  (doto (com.googlecode.lanterna.gui2.Button. text handler)
+    (.setRenderer (com.googlecode.lanterna.gui2.Button$FlatButtonRenderer.))))
+
 (def WindowHints
   {"CENTERED" Window$Hint/CENTERED
    "EXPANDED" Window$Hint/EXPANDED
@@ -56,8 +60,6 @@
    "NO_FOCUS" Window$Hint/NO_FOCUS
    "NO_POST_RENDERING" Window$Hint/NO_POST_RENDERING
    })
-
-(defn Button [text handler] (Label (str "[" text "]")))
 
 (defn Window
   "Create a BasicWindow with the given child component and, if specified, the given hints (which map to values of the Window$Hint enum, e.g. :CENTERED or :FULL_SCREEN)."
