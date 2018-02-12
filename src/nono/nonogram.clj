@@ -5,9 +5,10 @@
 
 (def Hint [s/Int])
 (def Position [(s/one s/Int "x") (s/one s/Int "y")])
-(def GridCell [(s/one Position "position") (s/one s/Any "value")])
-(def GridLine [s/Any])
-(def Grid {Position s/Any}) ; should be s/Char
+(def CellState (s/enum :empty :full :???))
+(def GridCell [(s/one Position "position") (s/one CellState "state")])
+(def GridLine [CellState])
+(def Grid {Position CellState}) ; should be s/Char
 (def Nonogram
   {:title s/Str
    :width s/Int
@@ -35,19 +36,22 @@
   (for [y (range height) x (range width)]
     [[x y] (grid [x y])]))
 
-(defn- ->clues
-  "Make the clues for a line by splitting it into runs of adjacent tiles and
+(defn- ->cell [char]
+  ({\. :empty \# :full} char))
+
+(defn- ->hints
+  "Make the hints for a line by splitting it into runs of adjacent tiles and
   then counting each one. Returns a vector of ints."
   [line]
   (->> line (partition-by identity) ; split into runs of fills and blanks
-       (filter #(= (first %) \#)) ; remove the blanks
+       (filter #(= (first %) :full)) ; remove the blanks
        (map count)
        vec))
 
 (defn- ->row
-  "Turns a single row, at position y, into a seq of [x y], val."
+  "Turns a string representing the row at position y into a seq of GridCells."
   [y vals]
-  (apply concat (map-indexed #(vector [%1 y] %2) vals)))
+  (apply concat (map-indexed #(vector [%1 y] (->cell %2)) vals)))
 
 (defn- ->grid
   "Turn a list of lists into a grid, i.e. a map indexed by [x y] values."
@@ -77,8 +81,8 @@
                   :row-hints []}
         ]
     (assoc nonogram
-      :col-hints (map ->clues (cols nonogram))
-      :row-hints (map ->clues (rows nonogram)))))
+      :col-hints (map ->hints (cols nonogram))
+      :row-hints (map ->hints (rows nonogram)))))
 
 (defn load [filename] :- Nonogram
   (-> filename slurp string/split-lines ->nonogram))

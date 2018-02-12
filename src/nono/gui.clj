@@ -12,7 +12,7 @@
           (count (nonogram :cols)) \× (count (nonogram :rows)) \newline
           )))
 
-(def doubler {\# "██" \. "╶╴"})
+(def doubler {:full "██" :empty "╶ " :??? "░░"})
 (defn- CellButton [[[x y] cell]]
   (Button (doubler cell)
           (fn [] (println "Button at " x "," y " pressed!"))))
