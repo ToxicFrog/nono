@@ -1,20 +1,37 @@
 (ns nono.nonogram
   "Tools for working with Nonogram data."
-  (:require [clojure.string :as string]))
+  (:require [clojure.string :as string]
+            [schema.core :as s :refer [def defn]]))
 
-(defn rows [{:keys [grid width height]}]
+(def Hint [s/Int])
+(def Position [(s/one s/Int "x") (s/one s/Int "y")])
+(def GridCell [(s/one Position "position") (s/one s/Any "value")])
+(def GridLine [s/Any])
+(def Grid {Position s/Any}) ; should be s/Char
+(def Nonogram
+  {:title s/Str
+   :width s/Int
+   :height s/Int
+   :grid Grid
+   :col-hints [Hint]
+   :row-hints [Hint]
+   })
+
+(defn rows :- [GridLine]
+  [{:keys [grid width height]} :- Nonogram]
   (for [y (range height)]
     (vec (for [x (range width)]
            (grid [x y])))))
 
-(defn cols [{:keys [grid width height]}]
+(defn cols :- [GridLine]
+  [{:keys [grid width height]} :- Nonogram]
   (for [x (range width)]
     (vec (for [y (range height)]
            (grid [x y])))))
 
-(defn cells
+(defn cells :- [GridCell]
   "Returns a sequence of cells in row-major order."
-  [{:keys [grid width height]}]
+  [{:keys [grid width height]} :- Nonogram]
   (for [y (range height) x (range width)]
     [[x y] (grid [x y])]))
 
@@ -55,11 +72,13 @@
         nonogram {:title title
                   :grid grid
                   :height (dec (count lines))
-                  :width (count (last lines))}
+                  :width (count (last lines))
+                  :col-hints []
+                  :row-hints []}
         ]
     (assoc nonogram
       :col-hints (map ->clues (cols nonogram))
       :row-hints (map ->clues (rows nonogram)))))
 
-(defn load [filename]
+(defn load [filename] :- Nonogram
   (-> filename slurp string/split-lines ->nonogram))
