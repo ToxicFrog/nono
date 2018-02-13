@@ -1,6 +1,8 @@
 (ns lanterna.settings
   "Constructors for Lanterna setting objects like TextColour, TerminalSize, and LayoutData."
+  (:require [clojure.java.io :as io])
   (:import (java.lang Enum)
+           (java.util Properties)
     (com.googlecode.lanterna TextColor$Factory TextColor$ANSI SGR
                              TerminalSize)
     (com.googlecode.lanterna.graphics SimpleTheme)
@@ -19,50 +21,13 @@
 
 (defn Size [w h] (TerminalSize. w h))
 
-(defn- as-theme-arg
-  "Convert a lexical token into an argument suitable for a ThemeDefinition
-  field setter. In practice, this means strings starting with # get wrapped in
-  a (Colour ...) call, and vectors get wrapper in (into-array SGR ...).
-  Everything else is left alone."
-  [token]
-  (cond
-    (and (string? token) (= \# (first token))) `(Colour ~token)
-    (and (vector? token)) `(into-array SGR ~token)
-    :else token))
+(defn PropertyTheme [file]
+  (com.googlecode.lanterna.graphics.PropertyTheme.
+    (doto (Properties.)
+      (.load (io/reader file)))))
 
-(defn- to-state-override
-  [[state-name & args]]
-  ; Assume the head of the sexpr is a field setter name without the
-  ; leading .set, so (Active ...) turns into (.setActive ...)
-  `(~(symbol (str ".set" state-name)) ~@(map as-theme-arg args)))
-
-(defn- to-widget-override
-  [theme-sym [widget-type fg bg & state-overrides]]
-  ; Each state override ends up as a (doto) clause operating on the
-  ; theme definition returned by theme.addOverride(type)
-  ; Individual expressions in the (doto) are derived from the
-  ; state-overrides.
-  `(doto (.addOverride ~theme-sym
-                       ~(symbol (str "com.googlecode.lanterna.gui2." widget-type))
-                       (Colour ~fg) (Colour ~bg) (into-array SGR []))
-     ~@(map to-state-override state-overrides)))
-
-(defmacro Theme
-  "Creates a SimpleTheme with the relevant widgets overridden.
-  Overrides have the form:
-    (Class fg bg
-      (CursorVisible true)
-      (Active fg bg [sgr])
-      ...)
-  String arguments starting with # will be automatically converted into Colours,
-  and vector arguments will be automatically converted into SGR arrays."
-  [fg bg & overrides]
-  (let [theme (gensym "theme")]
-    ; Turn it into a SimpleTheme. constructor followed by a series of doto
-    ; clauses that .addOverride overrides for each type.
-    `(let [~theme (SimpleTheme. (Colour ~fg) (Colour ~bg) (into-array SGR []))]
-       ~@(map (partial to-widget-override theme) overrides)
-       ~theme)))
+(defn Theme [fg bg]
+  (SimpleTheme. (Colour fg) (Colour bg) (into-array SGR [])))
 
 (defn LinearAlignment [align]
   (com.googlecode.lanterna.gui2.LinearLayout/createLayoutData
