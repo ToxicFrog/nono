@@ -27,8 +27,25 @@
   [token]
   (cond
     (and (string? token) (= \# (first token))) `(Colour ~token)
-    (and (vector? token)) `(into-array SGR [])
+    (and (vector? token)) `(into-array SGR ~token)
     :else token))
+
+(defn- to-state-override
+  [[state-name & args]]
+  ; Assume the head of the sexpr is a field setter name without the
+  ; leading .set, so (Active ...) turns into (.setActive ...)
+  `(~(symbol (str ".set" state-name)) ~@(map as-theme-arg args)))
+
+(defn- to-widget-override
+  [theme-sym [widget-type fg bg & state-overrides]]
+  ; Each state override ends up as a (doto) clause operating on the
+  ; theme definition returned by theme.addOverride(type)
+  ; Individual expressions in the (doto) are derived from the
+  ; state-overrides.
+  `(doto (.addOverride ~theme-sym
+                       ~(symbol (str "com.googlecode.lanterna.gui2." widget-type))
+                       (Colour ~fg) (Colour ~bg) (into-array SGR []))
+     ~@(map to-state-override state-overrides)))
 
 (defmacro Theme
   "Creates a SimpleTheme with the relevant widgets overridden.
@@ -40,26 +57,11 @@
   String arguments starting with # will be automatically converted into Colours,
   and vector arguments will be automatically converted into SGR arrays."
   [fg bg & overrides]
-  (let [theme (gensym "theme")
-        make-state-override
-        (fn [[state & args]]
-          ; Assume the head of the sexpr is a field setter name without the
-          ; leading .set, so (Active ...) turns into (.setActive ...)
-          `(~(symbol (str ".set" state)) ~@(map as-theme-arg args)))
-        make-type-override
-        (fn [[type fg bg & state-overrides]]
-          ; Each state override ends up as a (doto) clause operating on the
-          ; theme definition returned by theme.addOverride(type)
-          ; Individual expressions in the (doto) are derived from the
-          ; state-overrides.
-          `(doto (.addOverride ~theme ~(symbol (str "com.googlecode.lanterna.gui2." type))
-                               (Colour ~fg) (Colour ~bg) (into-array SGR []))
-             ~@(map make-state-override state-overrides)))
-        ]
+  (let [theme (gensym "theme")]
     ; Turn it into a SimpleTheme. constructor followed by a series of doto
     ; clauses that .addOverride overrides for each type.
     `(let [~theme (SimpleTheme. (Colour ~fg) (Colour ~bg) (into-array SGR []))]
-       ~@(map make-type-override overrides)
+       ~@(map (partial to-widget-override theme) overrides)
        ~theme)))
 
 (defn LinearAlignment [align]
