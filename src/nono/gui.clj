@@ -3,37 +3,52 @@
             [lanterna.gui :as lgui]
             [nono.hints :as hints]
             [nono.nonogram :as ng]
-            [clojure.string :as string])
-  )
+            [nono.game :as game]
+            [clojure.string :as string]
+            [clojure.core.matrix :as mx]
+            [schema.core :as s :refer [def defn]]))
 
-(defn- statline [nonogram]
-  (Label (str
-          (nonogram :width) \× (nonogram :height)
-          )))
+(defn- statline [game]
+  (let [{:keys [width height]} (@game :nonogram)]
+    (Label (str width \× height))))
+; SmartLabel (...status function...)
 
 (def tiles {:full "██" :empty "╶ " :??? "░░"})
-(defn- CellButton [{[x y] :position, state :state}]
-  (Button (tiles state)
-          (fn [] (println "Button at " x "," y " pressed!"))))
+(def next-tile {:??? :full
+                :full :empty
+                :empty :full})
+(defn- update-tile [row col game]
+  (update-in game [:grid row col] next-tile))
+(defn- CellButton [game [row col]]
+  (let [state (-> @game :grid (mx/mget row col))]
+    (Button (tiles state)
+            (fn toggle-tile []
+              ;(println "Button at " col "," row " pressed!")
+              (swap! game (partial update-tile row col))
+              ))))
 
 (defn- playfield
-  [nonogram]
+  [game]
+  (println
+    (->> @game :grid mx/index-seq))
   (GridPanel
-    :width (nonogram :width)
-    :children (map CellButton (ng/cells nonogram))))
+    :width (-> @game :nonogram :width)
+    :children (->> @game :grid mx/index-seq
+                   (map (partial CellButton game)))))
 
-(defn- nono-panel [nonogram]
+(defn- nono-panel [game]
   (GridPanel
     :width 3
-    :children [(statline nonogram) (VSep) (-> nonogram :col-hints hints/col-hints)
+    :children [(statline game) (VSep) (-> @game :nonogram :col-hints hints/col-hints)
                (HSep) (Label "┼") (HSep)
 
-               (-> nonogram :row-hints hints/row-hints) (VSep) (playfield nonogram)]
+               (-> @game :nonogram :row-hints hints/row-hints) (VSep) (playfield game)]
     ))
 
-(defn run [nonogram]
-  (let [window (Window (nonogram :title) (nono-panel nonogram) :CENTERED)
-        ]
+(defn run :- s/Any [game :- game/Game]
+  (let [window (Window (-> @game :nonogram :title)
+                       (nono-panel game)
+                       :CENTERED)]
     (doto (lgui/text-gui)
       (.addWindow window)
       (.waitForWindowToClose window))))

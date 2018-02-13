@@ -8,7 +8,7 @@
 (def Hint [s/Int])
 (def Position
   "Position of a cell in the grid. 0-origin, northwest gravity."
-  [(s/one s/Int "x") (s/one s/Int "y")])
+  [(s/one s/Int "row") (s/one s/Int "col")])
 (def CellState (s/enum :empty :full :???))
 (def GridCell {:position Position :state CellState})
 (def GridLine [CellState])
@@ -21,24 +21,6 @@
    :col-hints [Hint]
    :row-hints [Hint]
    })
-
-(defn rows :- [GridLine]
-  [{:keys [grid]} :- Nonogram]
-  (mx/rows grid))
-
-(defn cols :- [GridLine]
-  [{:keys [grid]} :- Nonogram]
-  (mx/columns grid))
-
-(defn cells :- [GridCell]
-  "Returns a sequence of cells in row-major order."
-  [{:keys [grid]} :- Nonogram]
-  (->> grid
-       (mx/emap-indexed
-         (fn :- GridCell [pos :- Position, state :- CellState]
-           {:position pos :state state}))
-       (mx/transpose)  ; convert from col-major to row-major
-       (mx/eseq)))
 
 (defn- ->cell [char]
   ({\. :empty \# :full} char))
@@ -57,20 +39,14 @@
   be the title of the nonogram, subsequent lines are image data where # is filled
   and . is blank."
   [lines]
-  (let [title (first lines)
-        ; transpose it at the end because core.matrix uses column-major order
-        grid (->> (rest lines) (map vec) (mx/emap ->cell) mx/transpose)
-        [width height] (mx/shape grid)
-        nonogram {:title title
-                  :grid grid
-                  :width width
-                  :height height
-                  :col-hints []
-                  :row-hints []}
-        ]
-    (assoc nonogram
-      :col-hints (map ->hints (cols nonogram))
-      :row-hints (map ->hints (rows nonogram)))))
+  (let [grid (->> (rest lines) (map vec) (mx/emap ->cell))
+        [rows cols] (mx/shape grid)]
+    {:title (first lines)
+     :grid grid
+     :width cols
+     :height rows
+     :col-hints (map ->hints (mx/columns grid))
+     :row-hints (map ->hints (mx/rows grid))}))
 
 (defn load [filename] :- Nonogram
   (-> filename slurp string/split-lines ->nonogram))
