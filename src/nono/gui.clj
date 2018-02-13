@@ -1,6 +1,7 @@
 (ns nono.gui
   (:require [lanterna.widgets :refer [Window VSep HSep Label GridPanel Button]]
             [lanterna.gui :as lgui]
+            [nono.lanterna-gui :refer [ViewButton ViewLabel]]
             [nono.hints :as hints]
             [nono.nonogram :as ng]
             [nono.game :as game]
@@ -9,28 +10,30 @@
             [schema.core :as s :refer [def defn]]))
 
 (defn- statline [game]
-  (let [{:keys [width height]} (@game :nonogram)]
-    (Label (str width \× height))))
-; SmartLabel (...status function...)
+  (ViewLabel
+    (fn []
+      (str
+        (-> @game :nonogram :title) \newline
+        (-> @game :nonogram :cols) \× (-> @game :nonogram :rows) \newline
+        (-> @game :col) \, (-> @game :row)
+        ))))
 
 (def tiles {:full "██" :empty "╶ " :??? "░░"})
 (def next-tile {:??? :full
                 :full :empty
                 :empty :full})
-(defn- update-tile [row col game]
-  (update-in game [:grid row col] next-tile))
+(defn- update-tile [game row col]
+  (swap! game
+         #(update-in % [:grid row col] next-tile)))
+(defn- show-tile [game row col]
+  (-> @game :grid (mx/mget row col) tiles))
 (defn- CellButton [game [row col]]
-  (let [state (-> @game :grid (mx/mget row col))]
-    (Button (tiles state)
-            (fn toggle-tile []
-              ;(println "Button at " col "," row " pressed!")
-              (swap! game (partial update-tile row col))
-              ))))
+  (ViewButton
+    (partial show-tile game row col)
+    (partial update-tile game row col)))
 
 (defn- playfield
   [game]
-  (println
-    (->> @game :grid mx/index-seq))
   (GridPanel
     :width (-> @game :nonogram :width)
     :children (->> @game :grid mx/index-seq
@@ -49,6 +52,7 @@
   (let [window (Window (-> @game :nonogram :title)
                        (nono-panel game)
                        :CENTERED)]
+    (swap! game #(assoc % :ui window))
     (doto (lgui/text-gui)
       (.addWindow window)
       (.waitForWindowToClose window))))
