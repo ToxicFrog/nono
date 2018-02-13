@@ -1,14 +1,18 @@
 (ns nono.nonogram
   "Tools for working with Nonogram data."
   (:require [clojure.string :as string]
-            [schema.core :as s :refer [def defn]]))
+            [clojure.core.matrix :as mx]
+            [schema.core :as s :refer [def defn fn]]))
 
+; Types!
 (def Hint [s/Int])
-(def Position [(s/one s/Int "x") (s/one s/Int "y")])
+(def Position
+  "Position of a cell in the grid. 0-origin, northwest gravity."
+  [(s/one s/Int "x") (s/one s/Int "y")])
 (def CellState (s/enum :empty :full :???))
-(def GridCell [(s/one Position "position") (s/one CellState "state")])
+(def GridCell {:position Position :state CellState})
 (def GridLine [CellState])
-(def Grid {Position CellState}) ; should be s/Char
+(def Grid [GridLine])
 (def Nonogram
   {:title s/Str
    :width s/Int
@@ -19,22 +23,22 @@
    })
 
 (defn rows :- [GridLine]
-  [{:keys [grid width height]} :- Nonogram]
-  (for [y (range height)]
-    (vec (for [x (range width)]
-           (grid [x y])))))
+  [{:keys [grid]} :- Nonogram]
+  (mx/rows grid))
 
 (defn cols :- [GridLine]
-  [{:keys [grid width height]} :- Nonogram]
-  (for [x (range width)]
-    (vec (for [y (range height)]
-           (grid [x y])))))
+  [{:keys [grid]} :- Nonogram]
+  (mx/columns grid))
 
 (defn cells :- [GridCell]
   "Returns a sequence of cells in row-major order."
-  [{:keys [grid width height]} :- Nonogram]
-  (for [y (range height) x (range width)]
-    [[x y] (grid [x y])]))
+  [{:keys [grid]} :- Nonogram]
+  (->> grid
+       (mx/emap-indexed
+         (fn :- GridCell [pos :- Position, state :- CellState]
+           {:position pos :state state}))
+       (mx/transpose)  ; convert from col-major to row-major
+       (mx/eseq)))
 
 (defn- ->cell [char]
   ({\. :empty \# :full} char))
@@ -48,35 +52,19 @@
        (map count)
        vec))
 
-(defn- ->row
-  "Turns a string representing the row at position y into a seq of GridCells."
-  [y vals]
-  (apply concat (map-indexed #(vector [%1 y] (->cell %2)) vals)))
-
-(defn- ->grid
-  "Turn a list of lists into a grid, i.e. a map indexed by [x y] values."
-  [lines]
-  (apply assoc {}
-         (->> lines
-              (map-indexed ->row)
-              (apply concat))))
-
 (defn- ->nonogram
   "Given a list of lines, turn it into a nonogram. The first line is assumed to
   be the title of the nonogram, subsequent lines are image data where # is filled
-  and . is blank.
-  Returns a map with the keys
-    :title :row-hints :col-hints :width :height :grid
-  :grid is a map from [x y] to cell content."
+  and . is blank."
   [lines]
   (let [title (first lines)
-        grid (->grid (rest lines))
-        height (dec (count lines))
-        width (count (last lines))
+        ; transpose it at the end because core.matrix uses column-major order
+        grid (->> (rest lines) (map vec) (mx/emap ->cell) mx/transpose)
+        [width height] (mx/shape grid)
         nonogram {:title title
                   :grid grid
-                  :height (dec (count lines))
-                  :width (count (last lines))
+                  :width width
+                  :height height
                   :col-hints []
                   :row-hints []}
         ]

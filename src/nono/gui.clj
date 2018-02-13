@@ -11,9 +11,9 @@
           (nonogram :width) \× (nonogram :height)
           )))
 
-(def doubler {:full "██" :empty "╶ " :??? "░░"})
-(defn- CellButton [[[x y] cell]]
-  (Button (doubler cell)
+(def tiles {:full "██" :empty "╶ " :??? "░░"})
+(defn- CellButton [{[x y] :position, state :state}]
+  (Button (tiles state)
           (fn [] (println "Button at " x "," y " pressed!"))))
 
 (defn- playfield
