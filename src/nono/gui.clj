@@ -13,7 +13,6 @@
   (ViewLabel
     (fn []
       (str
-        ; (-> @game :nonogram :title) \newline
         (-> @game :nonogram :width) \× (-> @game :nonogram :height) \newline
         (-> @game :col) \, (-> @game :row)))))
 
@@ -27,10 +26,10 @@
 (defn- nono-panel [game]
   (GridPanel
     :width 3
-    :children [(statline game) (VSep) (-> @game :nonogram :col-hints hints/col-hints)
+    :children [(statline game) (VSep) (hints/col-hints game) ; (-> @game :nonogram :col-hints hints/col-hints)
                (HSep) (Label "┼") (HSep)
 
-               (-> @game :nonogram :row-hints hints/row-hints) (VSep) (playfield game)]
+               (hints/row-hints game) (VSep) (playfield game)]
     ))
 
 (defn run :- s/Any [game :- game/Game]

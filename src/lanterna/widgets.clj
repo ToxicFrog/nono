@@ -84,17 +84,20 @@
        dorun)
   panel)
 
-(defn BottomJustifiedColumn
-  "Create a Panel containing the specified children that looks like it uses a vertical LinearLayout, except with the children aligned to the bottom of the Panel."
-  [children]
+(defn BottomJustify
+  "Equivalent to (LinearContainer parent :direction :VERTICAL :children children)
+  except that the children are bottom justified in the container. Uses GridLayout
+  internally."
+  [parent children & args]
   (pad-and-fill-grid
-    (GridPanel :width 1)
+    (apply GridContainer parent :width 1 args)
     children))
 
-(defn RightJustifiedRow
-  "Create a Panel containing the specified children that looks like it uses a horizontal LinearLayout, except with the children aligned to the right of the Panel."
-  [spacing children]
+(defn RightJustify
+  "Equivalent to (LinearContainer parent :direction :HORIZONTAL :children children)
+  except that the children are right justified in the container. Uses GridLayout
+  internally."
+  [parent children & args]
   (pad-and-fill-grid
-    (GridPanel :width (-> children count inc) :spacing spacing)
+    (apply GridContainer parent :width (-> children count inc) args)
     children))
-
