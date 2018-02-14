@@ -1,7 +1,7 @@
 (ns nono.gui
   (:require [lanterna.widgets :refer [Window VSep HSep Label GridPanel Button]]
             [lanterna.gui :as lgui]
-            [nono.lanterna-gui :refer [ViewButton ViewLabel]]
+            [nono.lanterna-gui :refer [CellButton ViewLabel]]
             [nono.hints :as hints]
             [nono.nonogram :as ng]
             [nono.game :as game]
@@ -13,24 +13,9 @@
   (ViewLabel
     (fn []
       (str
-        (-> @game :nonogram :title) \newline
-        (-> @game :nonogram :cols) \× (-> @game :nonogram :rows) \newline
-        (-> @game :col) \, (-> @game :row)
-        ))))
-
-(def tiles {:full "██" :empty "╶ " :??? "░░"})
-(def next-tile {:??? :full
-                :full :empty
-                :empty :full})
-(defn- update-tile [game row col]
-  (swap! game
-         #(update-in % [:grid row col] next-tile)))
-(defn- show-tile [game row col]
-  (-> @game :grid (mx/mget row col) tiles))
-(defn- CellButton [game [row col]]
-  (ViewButton
-    (partial show-tile game row col)
-    (partial update-tile game row col)))
+        ; (-> @game :nonogram :title) \newline
+        (-> @game :nonogram :width) \× (-> @game :nonogram :height) \newline
+        (-> @game :col) \, (-> @game :row)))))
 
 (defn- playfield
   [game]
@@ -52,7 +37,6 @@
   (let [window (Window (-> @game :nonogram :title)
                        (nono-panel game)
                        :CENTERED)]
-    (swap! game #(assoc % :ui window))
     (doto (lgui/text-gui)
       (.addWindow window)
       (.waitForWindowToClose window))))

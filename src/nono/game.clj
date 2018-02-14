@@ -14,9 +14,7 @@
      ; Playfield
      :grid ng/Grid
      ; Puzzle definition
-     :nonogram ng/Nonogram
-     ; Handle to UI
-     (s/optional-key :ui) s/Any}))
+     :nonogram ng/Nonogram}))
 
 (defn create-state :- Game
   [nonogram :- ng/Nonogram]
@@ -26,8 +24,7 @@
      :grid (mx/emap (constantly :???) (nonogram :grid))}))
 
 (defn set-position! [game row col]
-  (swap! game #(assoc % :row row :col col))
-  (.invalidate (-> @game :ui)))
+  (swap! game #(assoc % :row row :col col)))
 
 (defn update-cell! [game row col func]
   (swap! game #(update-in % [:grid row col] func)))
