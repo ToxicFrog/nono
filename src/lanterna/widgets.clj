@@ -14,26 +14,30 @@
        dorun)
   container)
 
-(defn LinearPanel
-  [& {:keys [direction spacing children align]
-      :or {spacing 0 children [] align nil}}]
+(defn LinearContainer
+  [container & {:keys [direction spacing children align]
+                :or {spacing 0 children [] align nil}}]
   (add-children
-    (doto (Panel.)
+    (doto container
       (.setLayoutManager
         (doto (LinearLayout direction) (.setSpacing spacing))))
     children
     (LinearAlignment align)))
 
-(defn GridPanel
-  [& {:keys [width margins spacing children align]
-      :or {margins 0 spacing 0 children [] align [:FILL :FILL]}}]
+(defn LinearPanel [& args] (apply LinearContainer (Panel.) args))
+
+(defn GridContainer
+  [container & {:keys [width margins spacing children align]
+                :or {margins 0 spacing 0 children [] align [:FILL :FILL]}}]
   (add-children
-    (doto (Panel.)
+    (doto container
       (.setLayoutManager (GridLayout :width width
                                      :margins margins
                                      :spacing spacing)))
     children
     (apply GridAlignment align)))
+
+(defn GridPanel [& args] (apply GridContainer (Panel.) args))
 
 (defn Label
   "Create a Label, optionally with specified foreground and background colours."
