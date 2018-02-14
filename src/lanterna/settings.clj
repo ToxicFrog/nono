@@ -3,7 +3,7 @@
   (:require [clojure.java.io :as io])
   (:import (java.lang Enum)
            (java.util Properties)
-    (com.googlecode.lanterna TextColor$Factory TextColor$ANSI SGR
+    (com.googlecode.lanterna TextColor$Factory TextColor$ANSI TextColor$RGB SGR
                              TerminalSize)
     (com.googlecode.lanterna.graphics SimpleTheme)
     (com.googlecode.lanterna.gui2 GridLayout$Alignment
@@ -16,8 +16,8 @@
 
 (defn Colour
   "Return a TextColour based on the given hex code, or ANSI/DEFAULT if the code is not convertible into a displayable colour."
-  [s] (or (TextColor$Factory/fromString s)
-          TextColor$ANSI/DEFAULT))
+  ([r g b] (or (TextColor$RGB. r g b) TextColor$ANSI/DEFAULT))
+  ([s] (or (TextColor$Factory/fromString s) TextColor$ANSI/DEFAULT)))
 
 (defn Size [w h] (TerminalSize. w h))
 
@@ -27,7 +27,10 @@
       (.load (io/reader file)))))
 
 (defn Theme [fg bg]
-  (SimpleTheme. (Colour fg) (Colour bg) (into-array SGR [])))
+  (SimpleTheme.
+    (if (vector? fg) (apply Colour fg) (Colour fg))
+    (if (vector? bg) (apply Colour bg) (Colour bg))
+    (into-array SGR [])))
 
 (defn LinearAlignment [align]
   (com.googlecode.lanterna.gui2.LinearLayout/createLayoutData
