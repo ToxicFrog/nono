@@ -1,3 +1,5 @@
+(println "Loading program...")
+
 (ns nono.core
   (:gen-class)
   (:require [clojure.string :as string]
@@ -7,6 +9,8 @@
             [clojure.spec.alpha :as spec]
             [expound.alpha :as expound]
             [schema.core :as s]))
+
+(println "Starting game...")
 
 (s/set-fn-validation! true)
 (set! spec/*explain-out* expound/printer)
