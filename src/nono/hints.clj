@@ -32,7 +32,7 @@
 
 (defn- bg-colour [is-active is-complete is-even]
   (cond-> [0 0 0]
-          is-even (mx/add [0x10 0x10 0x10])
+          is-even (mx/add [0x20 0x20 0x20])
           is-active (mx/mul [0 1 1 ])
           is-active (mx/add [0 0x40 0x40])
           ))
@@ -44,15 +44,16 @@
   have been solved yet or not."
   [game key n]
   (proxy [Panel] []
-    (getThemeDefinition
-      [] (.getDefaultDefinition
-           (Theme
-             (fg-colour (-> @game key (= n))
-                        false
-                        (even? n))
-             (bg-colour (-> @game key (= n))
-                        false
-                        (even? n)))))))
+    ; getTheme will eventually be called by children of the panel to figure out
+    ; their theme, if they are not themed specifically.
+    (getTheme
+      [] (Theme
+           (fg-colour (-> @game key (= n))
+                      false
+                      (even? n))
+           (bg-colour (-> @game key (= n))
+                      false
+                      (even? n))))))
 
 (defn- ->row-hint
   "Turn the hints for a single row into a panel containing them with 1em spacing between them."
