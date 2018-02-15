@@ -37,6 +37,19 @@
           is-active (mx/add [0 0x40 0x40])
           ))
 
+(defn- col-hint-done [game n]
+  (= (-> @game :grid (mx/columns) (nth n))
+     (-> @game :nonogram :grid (mx/columns) (nth n))))
+
+(defn- row-hint-done [game n]
+  (= (-> @game :grid (mx/rows) (nth n))
+     (-> @game :nonogram :grid (mx/rows) (nth n))))
+
+(defn- hint-done [game key n]
+  (if (= :col key)
+    (col-hint-done game n)
+    (row-hint-done game n)))
+
 ; TODO move this into lanterna_gui
 (defn- HintPanel
   "It's like a Panel, but .getThemeDefinition is overloaded to return a Theme
@@ -49,10 +62,10 @@
     (getTheme
       [] (Theme
            (fg-colour (-> @game key (= n))
-                      false
+                      (hint-done game key n)
                       (even? n))
            (bg-colour (-> @game key (= n))
-                      false
+                      (hint-done game key n)
                       (even? n))))))
 
 (defn- ->row-hint
