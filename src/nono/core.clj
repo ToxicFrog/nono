@@ -3,7 +3,7 @@
 (ns nono.core
   (:gen-class)
   (:require [clojure.string :as string]
-            [nono.nonogram :as nonogram]
+            [nono.nonogram :as ng]
             [nono.gui :as gui]
             [nono.game :as game]
             [clojure.spec.alpha :as spec]
@@ -16,5 +16,5 @@
 (set! spec/*explain-out* expound/printer)
 
 (defn -main [filename & args]
-  (let [game (-> (nonogram/load filename) (game/create-state))]
+  (let [game (-> (ng/file->nonogram filename) (game/create-state))]
     (gui/run game)))

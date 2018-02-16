@@ -3,26 +3,18 @@
   (:require [lanterna.gui :as lgui]
             [lanterna.widgets :refer [Label RightJustify BottomJustify LinearPanel]]
             [clojure.core.matrix :as mx]
+            [nono.game :as game]
+            [nono.nonogram :as ng]
             [lanterna.settings :refer [Theme LinearAlignment]])
   (:import [com.googlecode.lanterna.gui2 Panel])
   )
 
-(defn- set-width
-  "Set the width for the given widget."
-  [w widget]
-  (doto widget
-    (.setPreferredSize
-      (-> widget (.getPreferredSize) (.withColumns w)))))
 
-; to implement HintPanel, we should override getThemeDefinition in Panel; that
-; gets called early in the rendering pass and it can return a theme based on the
-; current state of the hintpanel: focused or not, relevant or not.
-
-; ok so we have
-; basic theme is b0b0b0/000000
-; if it's even-numbered, make it d0d0d0/202020
-; if it's active, set r to 0 and then add 004040 to the bg
-; if it's finished, halve the fg
+; Get fg and bg colours for a hintline based on:
+; - whether it is active (i.e. in the same row/col as the cursor)
+; - whether it is compete (i.e. whether the player has solved that row)
+; - whether it is even-numbered (for the light-dark striping that makes them
+;   possible to tell apart)
 (defn- fg-colour [is-active is-complete is-even]
   (cond-> [0xb0 0xb0 0xb0]
       is-even (mx/add [0x10 0x10 0x10])
@@ -37,19 +29,6 @@
           is-active (mx/add [0 0x40 0x40])
           ))
 
-(defn- col-hint-done [game n]
-  (= (-> @game :grid (mx/columns) (nth n))
-     (-> @game :nonogram :grid (mx/columns) (nth n))))
-
-(defn- row-hint-done [game n]
-  (= (-> @game :grid (mx/rows) (nth n))
-     (-> @game :nonogram :grid (mx/rows) (nth n))))
-
-(defn- hint-done [game key n]
-  (if (= :col key)
-    (col-hint-done game n)
-    (row-hint-done game n)))
-
 ; TODO move this into lanterna_gui
 (defn- HintPanel
   "It's like a Panel, but .getThemeDefinition is overloaded to return a Theme
@@ -62,10 +41,10 @@
     (getTheme
       [] (Theme
            (fg-colour (-> @game key (= n))
-                      (hint-done game key n)
+                      false
                       (even? n))
            (bg-colour (-> @game key (= n))
-                      (hint-done game key n)
+                      false
                       (even? n))))))
 
 (defn- ->row-hint
@@ -90,7 +69,7 @@
     :direction :VERTICAL
     :padding 0
     :align :Fill
-    :children (map-indexed (partial ->row-hint game) (-> @game :nonogram :row-hints))))
+    :children (map-indexed (partial ->row-hint game) (-> @game :picture :hints :row))))
 
 (defn col-hints
   "Given the column hints (vec of vec of ints), return a horizontal panel containing them."
@@ -99,4 +78,4 @@
     :direction :HORIZONTAL
     :padding 0
     :align :Fill
-    :children (map-indexed (partial ->col-hint game) (-> @game :nonogram :col-hints))))
+    :children (map-indexed (partial ->col-hint game) (-> @game :picture :hints :col))))

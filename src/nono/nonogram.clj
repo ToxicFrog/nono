@@ -10,22 +10,27 @@
   "Position of a cell in the grid. 0-origin, northwest gravity."
   [(s/one s/Int "row") (s/one s/Int "col")])
 (def CellState (s/enum :empty :full :???))
-(def GridCell {:position Position :state CellState})
-(def GridLine [CellState])
-(def Grid [GridLine])
+(def GridSlice [CellState])
+(def Grid [GridSlice])
 (def Nonogram
   {:title s/Str
    :width s/Int
    :height s/Int
    :grid Grid
-   :col-hints [Hint]
-   :row-hints [Hint]
+   :hints { :row [Hint] :col [Hint] }
    })
 
-(defn- ->cell [char]
-  ({\. :empty \# :full} char))
+(defn row :- GridSlice
+  [nonogram :- Nonogram, row :- s/Int]
+  (mx/select (nonogram :grid) row :all))
 
-(defn- ->hints
+(defn col :- GridSlice
+  [nonogram :- Nonogram, col :- s/Int]
+  (mx/select (nonogram :grid) :all col))
+
+(def char->cell {\. :empty \# :full})
+
+(defn- slice->hints
   "Make the hints for a line by splitting it into runs of adjacent tiles and
   then counting each one. Returns a vector of ints."
   [line]
@@ -34,19 +39,34 @@
        (map count)
        vec))
 
-(defn- ->nonogram
+(defn- cell->hints
+  "Recalculate the hints for a given row and column, and return a version of the
+  nonogram with the new hints."
+  [ng r c]
+  (-> ng
+      (assoc-in [:hints :row r]
+                (slice->hints (row ng r)))
+      (assoc-in [:hints :col c]
+                (slice->hints (col ng c)))))
+
+(defn- lines->nonogram
   "Given a list of lines, turn it into a nonogram. The first line is assumed to
   be the title of the nonogram, subsequent lines are image data where # is filled
   and . is blank."
   [lines]
-  (let [grid (->> (rest lines) (map vec) (mx/emap ->cell))
+  (let [grid (->> (rest lines) (map vec) (mx/emap char->cell))
         [rows cols] (mx/shape grid)]
     {:title (first lines)
      :grid grid
      :width cols
      :height rows
-     :col-hints (map ->hints (mx/columns grid))
-     :row-hints (map ->hints (mx/rows grid))}))
+     :hints {:col (map slice->hints (mx/columns grid))
+             :row (map slice->hints (mx/rows grid))}}))
 
-(defn load [filename] :- Nonogram
-  (-> filename slurp string/split-lines ->nonogram))
+(defn str->nonogram :- Nonogram
+  [pattern :- s/Str]
+  (-> pattern string/split-lines lines->nonogram))
+
+(defn file->nonogram :- Nonogram
+  [filename :- s/Str]
+  (-> filename slurp string/split-lines lines->nonogram))

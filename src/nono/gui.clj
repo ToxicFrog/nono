@@ -13,27 +13,27 @@
   (ViewLabel
     (fn []
       (str
-        (-> @game :nonogram :width) \× (-> @game :nonogram :height) \newline
+        (-> @game :puzzle :width) \× (-> @game :puzzle :height) \newline
         (-> @game :col) \, (-> @game :row)))))
 
 (defn- playfield
   [game]
   (GridPanel
-    :width (-> @game :nonogram :width)
-    :children (->> @game :grid mx/index-seq
+    :width (-> @game :puzzle :width)
+    :children (->> @game :puzzle :grid mx/index-seq
                    (map (partial CellButton game)))))
 
 (defn- nono-panel [game]
   (GridPanel
     :width 3
-    :children [(statline game) (VSep) (hints/col-hints game) ; (-> @game :nonogram :col-hints hints/col-hints)
+    :children [(statline game) (VSep) (hints/col-hints game)
                (HSep) (Label "┼") (HSep)
 
                (hints/row-hints game) (VSep) (playfield game)]
     ))
 
 (defn run :- s/Any [game :- game/Game]
-  (let [window (Window (-> @game :nonogram :title)
+  (let [window (Window (-> @game :puzzle :title)
                        (nono-panel game)
                        :CENTERED)]
     (doto (lgui/text-gui)
