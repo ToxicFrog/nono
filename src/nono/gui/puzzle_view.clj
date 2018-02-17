@@ -1,10 +1,12 @@
-(ns nono.lanterna-gui
-  "Nono-specific code that has to interface directly with Lanterna."
+(ns nono.gui.puzzle-view
+  "The grid that contains the puzzle being edited, and event handlers associated
+  with it (i.e. basically all of them)."
   (:require [nono.game :as game]
             [schema.core :as s :refer [def defn]]
             [lanterna.widgets :refer [proxy-super-cls]]
+            [lanterna.containers :refer [GridPanel]]
             [clojure.core.matrix :as mx])
-  (:import (com.googlecode.lanterna.gui2 Button Button$FlatButtonRenderer Interactable$Result)
+  (:import (com.googlecode.lanterna.gui2 Panel Button Button$FlatButtonRenderer Interactable$Result)
            ))
 
 (def tiles {:full "██" :empty "╶ " :??? "░░"})
@@ -42,3 +44,10 @@
                          (proxy-super-cls Button handleKeyStroke keystroke)))
       (afterEnterFocus [how from]
                        (game/set-position! game row col)))))
+
+(defn puzzle-view :- Panel
+  [game :- game/GameAtom]
+  (GridPanel
+    :width (-> @game :puzzle :width)
+    :children (->> @game :puzzle :grid mx/index-seq
+                   (map (partial CellButton game)))))
