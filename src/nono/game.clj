@@ -18,10 +18,10 @@
 
 ; This is necessary because mx/fill returns an NDWrapper rather than whatever
 ; type you passed into it; see https://github.com/mikera/core.matrix/issues/333
-(defn fill [matrix value]
+(defn- fill [matrix value]
   (-> matrix (mx/fill value) (mx/matrix)))
 
-(defn copy-and-clear [nonogram]
+(defn- copy-and-clear [nonogram]
   (assoc nonogram
     :grid (fill (nonogram :grid) :???)
     :hints {:row (fill (-> nonogram :hints :row) 0)
@@ -57,3 +57,22 @@
 (defn col :- ng/GridSlice
   [game :- GameAtom, col :- s/Int]
   (mx/select (-> @game :puzzle :grid) :all col))
+
+(defn- map-puzzle [func game]
+  (update game :puzzle (partial ng/map-grid func)))
+
+(defn finish-row! :- Game
+  [game :- GameAtom, row :- s/Int, state :- ng/CellState]
+  (swap! game
+    (partial map-puzzle
+             (fn [[r c] val]
+               (if (and (= r row) (#{:mark :???} val))
+                 state val)))))
+
+(defn finish-col! :- Game
+  [game :- GameAtom, col :- s/Int, state :- ng/CellState]
+  (swap! game
+    (partial map-puzzle
+             (fn [[r c] val]
+               (if (and (= c col) (#{:mark :???} val))
+                 state val)))))

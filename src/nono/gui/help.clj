@@ -8,8 +8,7 @@
        v : mark box '??'      q : quit game
        z : reset box
     -, _ : finish row with clear/full
-    \\, | : finish column with clear/full
-    =, + : finish row *and* column with clear/full")
+    \\, | : finish column with clear/full")
 
 (defn show-help [text-gui]
   (MessageDialog/showMessageDialog

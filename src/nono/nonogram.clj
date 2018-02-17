@@ -77,3 +77,7 @@
   (-> ng
       (update-in [:grid row col] update)
       (cell->hints row col)))
+
+(defn map-grid :- Nonogram
+  [func :- (s/=> [[s/Int s/Int] CellState] CellState), ng :- Nonogram]
+  (update ng :grid (partial mx/emap-indexed func)))

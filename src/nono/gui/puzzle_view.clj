@@ -20,6 +20,8 @@
 
 (defmulti press-button
   (fn dispatcher [keystroke & args] (.getCharacter keystroke)))
+
+;; Commands for modifying individual cells.
 (defmethod press-button \newline [_ game row col]
   (game/update-cell! game row col next-tile)
   true)
@@ -33,13 +35,35 @@
   (game/set-cell! game row col :???)
   true)
 (defmethod press-button \v [_ game row col]
-  (game/set-cell! game row col :mark))
+  (game/set-cell! game row col :mark)
+  true)
+
+;; Commands for modifying entire rows and columns at a time.
+(defmethod press-button \- [_ game row col]
+  (game/finish-row! game row :empty)
+  true)
+(defmethod press-button \\ [_ game row col]
+  (game/finish-col! game col :empty)
+  true)
+(defmethod press-button \_ [_ game row col]
+  (game/finish-row! game row :full)
+  true)
+(defmethod press-button \| [_ game row col]
+  (game/finish-col! game col :full)
+  true)
+
+;; Metacommands: help and quit.
 (defmethod press-button \h [_ game row col]
-  (help/show-help *text-gui*))
+  (help/show-help *text-gui*)
+  true)
 (defmethod press-button \? [_ game row col]
-  (help/show-help *text-gui*))
+  (help/show-help *text-gui*)
+  true)
 (defmethod press-button \q [_ game row col]
-  (.. *text-gui* .getActiveWindow .close))
+  (.. *text-gui* .getActiveWindow .close)
+  true)
+
+;; Fallback; returning false means the caller will super().
 (defmethod press-button :default [_ game row col]
   false)
 
