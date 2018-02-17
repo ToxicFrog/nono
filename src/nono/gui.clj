@@ -4,7 +4,7 @@
             [lanterna.settings :refer [PropertyTheme]]
             [lanterna.gui :refer [Window MultiWindowTextGUI]]
             [nono.gui.puzzle-view :refer [puzzle-view]]
-            [nono.hints :as hints]
+            [nono.gui.hints :refer [hint-panel]]
             [nono.game :as game]
             [clojure.core.matrix :as mx]
             [schema.core :as s :refer [def defn]]))
@@ -19,9 +19,9 @@
 (defn- nono-panel [game]
   (GridPanel
     :width 3
-    :children [(statline game)        (VSep)   (hints/col-hints game)
-               (HSep)              (Label "┼") (HSep)
-               (hints/row-hints game) (VSep)   (puzzle-view game)]
+    :children [      (statline game)  (VSep)   (hint-panel game :col)
+                          (HSep)   (Label "┼") (HSep)
+               (hint-panel game :row) (VSep)   (puzzle-view game)]
     ))
 
 (defn run :- s/Any [game :- game/GameAtom]

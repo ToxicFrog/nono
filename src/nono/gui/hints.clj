@@ -1,4 +1,4 @@
-(ns nono.hints
+(ns nono.gui.hints
   "Widget to display the hints for the rows."
   (:require [lanterna.gui :as lgui]
             [lanterna.widgets :refer [Label]]
@@ -29,7 +29,6 @@
   (= (get-in @game [:picture :hints key n])
      (get-in @game [:puzzle :hints key n])))
 
-; TODO move this into lanterna_gui
 (defn- HintPanel
   "It's like a Panel, but .getThemeDefinition is overloaded to return a Theme
   appropriate to its index, the cursor position, and whether the hints in it
@@ -56,20 +55,14 @@
     (HintPanel game :col n)
     (map #(Label (format "%2d" %1)) hints)))
 
-(defn row-hints
-  "Given the row hints (vec of vec of ints), return a vertical panel containing them."
-  [game]
-  (LinearPanel
-    :direction :VERTICAL
-    :padding 0
-    :align :Fill
-    :children (map-indexed (partial ->row-hint game) (-> @game :picture :hints :row))))
-
-(defn col-hints
-  "Given the column hints (vec of vec of ints), return a horizontal panel containing them."
-  [game]
-  (LinearPanel
-    :direction :HORIZONTAL
-    :padding 0
-    :align :Fill
-    :children (map-indexed (partial ->col-hint game) (-> @game :picture :hints :col))))
+(defn hint-panel
+  [game key]
+  (let [dir (key {:col :HORIZONTAL :row :VERTICAL})
+        row-builder (key {:col ->col-hint :row ->row-hint})]
+    (LinearPanel
+      :direction dir
+      :padding 0
+      :align :Fill
+      :children (map-indexed
+                  (partial row-builder game)
+                  (-> @game :picture :hints key)))))
