@@ -1,3 +1,9 @@
+TODO (in approximate priority order)
+- key mappings for basic play
+- load JSON puzzles including those that consist only of hints
+- downloader of puzzles from nonograms.org
+- bundle puzzles in jar and load them?
+- more key mappings?
 
 There's a nonograms.org downloader at
 https://github.com/ThomasR/nonogram-solver/tree/develop/puzzles/nonograms.org
@@ -15,17 +21,6 @@ vvvvvvvvvvvv
 vvvvvvvvvvvv
 []⟔⟓⎡⎦⌜⌟
 
-## Game state
-
-Immutable:
-- name (but should probably be hidden until solved)
-- size of playfield
-- canonical playfield contents
-Mutable:
-- current contents of playfield
-- total number of solved squares
-- x,y position of cursor
-
 ## Functional requirements
 
 Proposed hotkeys:
@@ -37,6 +32,8 @@ Proposed hotkeys:
  c: check solution (c twice to display which tiles are wrong?)
  h: display hint (pick a ??? tile at random and show its true state)
  q: quit
+ l: load a new puzzle
+ s: save the puzzle in progress
 
 Nice to have: puzzle selection screen in game
 Nice to have: save puzzle state/remember which ones you've solved
