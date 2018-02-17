@@ -1,5 +1,5 @@
 (ns nono.gui
-  (:require [lanterna.widgets :refer [VSep HSep Label ViewLabel]]
+  (:require [lanterna.widgets :refer [VSep HSep Label]]
             [lanterna.containers :refer [GridPanel]]
             [lanterna.settings :refer [PropertyTheme]]
             [lanterna.gui :refer [Window MultiWindowTextGUI]]
@@ -11,11 +11,7 @@
             [schema.core :as s :refer [def defn]]))
 
 (defn- statline [game]
-  (ViewLabel
-    (fn []
-      (str
-        (-> @game :puzzle :width) \× (-> @game :puzzle :height) \newline
-        (-> @game :col) \, (-> @game :row)))))
+  (Label "Nono v0.1\n\nPress h\nfor help"))
 
 (defn- nono-panel [game]
   (GridPanel
