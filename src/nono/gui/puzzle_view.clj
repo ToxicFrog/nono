@@ -9,10 +9,11 @@
   (:import (com.googlecode.lanterna.gui2 Panel Button Button$FlatButtonRenderer Interactable$Result)
            ))
 
-(def tiles {:full "██" :empty "╶ " :??? "░░"})
+(def tiles {:full "██" :empty "··" :??? "░░" :mark "¿?"})
 (def next-tile {:??? :full
                 :full :empty
-                :empty :full})
+                :empty :full
+                :mark :full})
 
 (defmulti press-button
   (fn dispatcher [keystroke & args] (.getCharacter keystroke)))
@@ -28,6 +29,8 @@
 (defmethod press-button \z [_ game row col]
   (game/set-cell! game row col :???)
   true)
+(defmethod press-button \v [_ game row col]
+  (game/set-cell! game row col :mark))
 (defmethod press-button :default [_ game row col]
   false)
 

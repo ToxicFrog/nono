@@ -9,7 +9,7 @@
 (def Position
   "Position of a cell in the grid. 0-origin, northwest gravity."
   [(s/one s/Int "row") (s/one s/Int "col")])
-(def CellState (s/enum :empty :full :???))
+(def CellState (s/enum :empty :full :??? :mark))
 (def GridSlice [CellState])
 (def Grid [GridSlice])
 (def Nonogram

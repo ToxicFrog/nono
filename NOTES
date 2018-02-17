@@ -14,7 +14,7 @@ All cells are doubled, i.e. one nonogram cell is 2em wide.
 
 Filled: "██"
 Maybe: "╺╸" or "╶╴" or "░░"
-Empty: "  " or "[]" or "⌜⌟" or (with underline) "▏▕"
+Empty: "  " or "[]" or "⌜⌟" or (with underline) "▏▕" or "··"
 
 vvvvvvvvvvvv
 ▏⌟^^
