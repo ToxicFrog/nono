@@ -10,24 +10,14 @@
   )
 
 
-; Get fg and bg colours for a hintline based on:
-; - whether it is active (i.e. in the same row/col as the cursor)
-; - whether it is compete (i.e. whether the player has solved that row)
-; - whether it is even-numbered (for the light-dark striping that makes them
-;   possible to tell apart)
-(defn- fg-colour [is-active is-complete is-even]
-  (cond-> [0xb0 0xb0 0xb0]
-      is-even (mx/add [0x10 0x10 0x10])
-      is-complete (mx/sub [0x40 0x40 0x40])
-      is-active (mx/mul [0 1 1])
-      ))
-
-(defn- bg-colour [is-active is-complete is-even]
-  (cond-> [0 0 0]
-          is-even (mx/add [0x20 0x20 0x20])
-          is-active (mx/mul [0 1 1 ])
-          is-active (mx/add [0 0x40 0x40])
-          ))
+(def themes
+  ; complete? active? even?
+  {[false false false] (Theme [0xb0 0xb0 0xb0] [0x00 0x00 0x00])
+   [false false true]  (Theme [0xc0 0xc0 0xc0] [0x20 0x20 0x20])
+   [false true false]  (Theme [0x00 0xb0 0xb0] [0x00 0x30 0x30])
+   [false true true]   (Theme [0x00 0xc0 0xc0] [0x00 0x50 0x50])
+   ; TODO: reduce fg by 0x40 across the board when complete
+   })
 
 ; TODO move this into lanterna_gui
 (defn- HintPanel
@@ -39,13 +29,7 @@
     ; getTheme will eventually be called by children of the panel to figure out
     ; their theme, if they are not themed specifically.
     (getTheme
-      [] (Theme
-           (fg-colour (-> @game key (= n))
-                      false
-                      (even? n))
-           (bg-colour (-> @game key (= n))
-                      false
-                      (even? n))))))
+      [] (themes [false (-> @game key (= n)) (even? n)]))))
 
 (defn- ->row-hint
   "Turn the hints for a single row into a panel containing them with 1em spacing between them."
