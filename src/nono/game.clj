@@ -16,12 +16,23 @@
    :picture ng/Nonogram})
 (def GameAtom (s/atom Game))
 
+; This is necessary because mx/fill returns an NDWrapper rather than whatever
+; type you passed into it; see https://github.com/mikera/core.matrix/issues/333
+(defn fill [matrix value]
+  (-> matrix (mx/fill value) (mx/matrix)))
+
+(defn copy-and-clear [nonogram]
+  (assoc nonogram
+    :grid (fill (nonogram :grid) :???)
+    :hints {:row (fill (-> nonogram :hints :row) 0)
+            :col (fill (-> nonogram :hints :col) 0)}))
+
 (defn create-state :- GameAtom
   [nonogram :- ng/Nonogram]
   (atom
     {:row 0 :col 0
      :picture nonogram
-     :puzzle (update nonogram :grid (partial mx/emap (constantly :???)))}
+     :puzzle (copy-and-clear nonogram)}
     :validator (partial s/validate Game)))
 
 (defn set-position! [game row col]
