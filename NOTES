@@ -28,11 +28,23 @@ Mutable:
 
 ## Functional requirements
 
-Hilight the currently selected box. Needs to be compatible with existing grid features, so probably a colour hilight, e.g. make cyan instead of white.
-Corresponding v and h hints should hilight as well.
-v hints need subtle shading to differentiate columns.
-Individual cells need at least three states: solid, empty, and unknown -- all initialized to unknown. All of these need to be hilightable! Perhaps · for unknown?
-Nice to have: dim out hints once satisfied.
+Proposed hotkeys:
+ space: fill
+ x: clear
+ z: unknown
+ -\=: clear unknowns in row/col/both
+ _|+: fill unknowns in row/col/both
+ c: check solution (c twice to display which tiles are wrong?)
+ h: display hint (pick a ??? tile at random and show its true state)
+ q: quit
+
+Nice to have: puzzle selection screen in game
+Nice to have: save puzzle state/remember which ones you've solved
+
+Nice to have: dim out hintlines once satisfied.
+
+Nice to have: dim out individual hints once satisfied.
+
 Nice to have: once all hints for a row/col are satisfied, mark other cells in that line empty.
 
 ## Lanterna
