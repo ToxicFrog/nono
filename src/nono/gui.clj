@@ -7,6 +7,7 @@
             [nono.gui.hints :refer [hint-panel]]
             [nono.game :as game]
             [clojure.core.matrix :as mx]
+            [clojure.java.io :as io]
             [schema.core :as s :refer [def defn]]))
 
 (defn- statline [game]
@@ -28,6 +29,6 @@
   (let [window (Window (-> @game :puzzle :title)
                        (nono-panel game)
                        :CENTERED)]
-    (doto (MultiWindowTextGUI (PropertyTheme "data/theme.properties"))
+    (doto (MultiWindowTextGUI (-> "theme.properties" io/resource PropertyTheme))
       (.addWindow window)
       (.waitForWindowToClose window))))

@@ -13,6 +13,7 @@
 
 (println "Starting game...")
 
+; debug builds only!
 (s/set-fn-validation! true)
 (set! spec/*explain-out* expound/printer)
 
