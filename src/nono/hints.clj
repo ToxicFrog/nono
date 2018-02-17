@@ -16,8 +16,17 @@
    [false false true]  (Theme [0xc0 0xc0 0xc0] [0x20 0x20 0x20])
    [false true false]  (Theme [0x00 0xb0 0xb0] [0x00 0x30 0x30])
    [false true true]   (Theme [0x00 0xc0 0xc0] [0x00 0x50 0x50])
-   ; TODO: reduce fg by 0x40 across the board when complete
+   ; themes for when the hints are completed.
+   ; FG is darkened by 0x60, and BG no longer brightens as much when active.
+   [true false false] (Theme [0x60 0x60 0x60] [0x00 0x00 0x00])
+   [true false true]  (Theme [0x70 0x70 0x70] [0x20 0x20 0x20])
+   [true true false]  (Theme [0x00 0x60 0x60] [0x00 0x20 0x20])
+   [true true true]   (Theme [0x00 0x70 0x70] [0x00 0x40 0x40])
    })
+
+(defn- hint-matches? [game key n]
+  (= (get-in @game [:picture :hints key n])
+     (get-in @game [:puzzle :hints key n])))
 
 ; TODO move this into lanterna_gui
 (defn- HintPanel
@@ -29,7 +38,7 @@
     ; getTheme will eventually be called by children of the panel to figure out
     ; their theme, if they are not themed specifically.
     (getTheme
-      [] (themes [false (-> @game key (= n)) (even? n)]))))
+      [] (themes [(hint-matches? game key n) (-> @game key (= n)) (even? n)]))))
 
 (defn- ->row-hint
   "Turn the hints for a single row into a panel containing them with 1em spacing between them."
