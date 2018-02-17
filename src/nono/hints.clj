@@ -1,7 +1,8 @@
 (ns nono.hints
   "Widget to display the hints for the rows."
   (:require [lanterna.gui :as lgui]
-            [lanterna.widgets :refer [Label RightJustify BottomJustify LinearPanel]]
+            [lanterna.widgets :refer [Label]]
+            [lanterna.containers :refer [LinearPanel RightJustify BottomJustify]]
             [clojure.core.matrix :as mx]
             [nono.game :as game]
             [nono.nonogram :as ng]

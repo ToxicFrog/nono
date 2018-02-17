@@ -1,13 +1,15 @@
 (ns nono.gui
-  (:require [lanterna.widgets :refer [Window VSep HSep Label GridPanel Button]]
-            [lanterna.gui :as lgui]
-            [nono.lanterna-gui :refer [CellButton ViewLabel]]
+  (:require [lanterna.widgets :refer [VSep HSep Label ViewLabel]]
+            [lanterna.containers :refer [GridPanel]]
+            [lanterna.settings :refer [PropertyTheme]]
+            [lanterna.gui :refer [Window MultiWindowTextGUI]]
+            [nono.lanterna-gui :refer [CellButton]]
             [nono.hints :as hints]
-            [nono.nonogram :as ng]
             [nono.game :as game]
-            [clojure.string :as string]
             [clojure.core.matrix :as mx]
             [schema.core :as s :refer [def defn]]))
+
+(def nono-theme (PropertyTheme "data/theme.properties"))
 
 (defn- statline [game]
   (ViewLabel
@@ -36,6 +38,6 @@
   (let [window (Window (-> @game :puzzle :title)
                        (nono-panel game)
                        :CENTERED)]
-    (doto (lgui/text-gui)
+    (doto (MultiWindowTextGUI nono-theme)
       (.addWindow window)
       (.waitForWindowToClose window))))

@@ -1,49 +1,10 @@
 (ns lanterna.widgets
-  "Simple around common lanterna components. This includes both simple
-  constructors, and wrappers that do some configuration or composite together
-  multiple widgets."
+  "Wrappers around simple lanterna widgets such as separators, buttons, and labels."
   (:require [lanterna.settings :refer [Colour GridAlignment GridLayout
                                        Dir LinearAlignment LinearLayout]])
   (:import (com.googlecode.lanterna.gui2
-             BasicWindow Window$Hint Panel Separator)))
-
-(defn- add-children
-  [container children hints]
-  (->> children
-       (map #(.addComponent container %1 hints))
-       dorun)
-  container)
-
-(defn LinearContainer
-  [container & {:keys [direction spacing children align]
-                :or {spacing 0 children [] align nil}}]
-  (add-children
-    (doto container
-      (.setLayoutManager
-        (doto (LinearLayout direction) (.setSpacing spacing))))
-    children
-    (LinearAlignment align)))
-
-(defn LinearPanel [& args] (apply LinearContainer (Panel.) args))
-
-(defn GridContainer
-  [container & {:keys [width margins spacing children align]
-                :or {margins 0 spacing 0 children [] align [:FILL :FILL]}}]
-  (add-children
-    (doto container
-      (.setLayoutManager (GridLayout :width width
-                                     :margins margins
-                                     :spacing spacing)))
-    children
-    (apply GridAlignment align)))
-
-(defn GridPanel [& args] (apply GridContainer (Panel.) args))
-
-(defn Label
-  "Create a Label, optionally with specified foreground and background colours."
-  ([text] (com.googlecode.lanterna.gui2.Label. text))
-  ([text fg] (doto (Label text) (.setForegroundColour (Colour fg))))
-  ([text fg bg] (doto (Label text fg) (.setBackgroundColor (Colour bg)))))
+             BasicWindow Window$Hint Panel Separator
+             Button$FlatButtonRenderer)))
 
 (defn VSep [] (Separator. com.googlecode.lanterna.gui2.Direction/VERTICAL))
 (defn HSep [] (Separator. com.googlecode.lanterna.gui2.Direction/HORIZONTAL))
@@ -52,52 +13,37 @@
   (doto (com.googlecode.lanterna.gui2.Button. text handler)
     (.setRenderer (com.googlecode.lanterna.gui2.Button$FlatButtonRenderer.))))
 
-(def WindowHints
-  {"CENTERED" Window$Hint/CENTERED
-   "EXPANDED" Window$Hint/EXPANDED
-   "FIT_TERMINAL_WINDOW" Window$Hint/FIT_TERMINAL_WINDOW
-   "FIXED_POSITION" Window$Hint/FIXED_POSITION
-   "FIXED_SIZE" Window$Hint/FIXED_SIZE
-   "FULL_SCREEN" Window$Hint/FULL_SCREEN
-   "MODAL" Window$Hint/MODAL
-   "NO_DECORATIONS" Window$Hint/NO_DECORATIONS
-   "NO_FOCUS" Window$Hint/NO_FOCUS
-   "NO_POST_RENDERING" Window$Hint/NO_POST_RENDERING
-   })
+(defn ViewButton
+  "Create a Button with a dynamically updating label. On each rendering pass,
+  (labelfn) will be called and whatever it returns will be used as the label."
+  ([labelfn] (ViewButton labelfn (constantly nil)))
+  ([labelfn handler]
+     (proxy [com.googlecode.lanterna.gui2.Button] [(labelfn) handler]
+       (getLabel [] (labelfn))
+       (createDefaultRenderer [] (Button$FlatButtonRenderer.)))))
 
-(defn Window
-  "Create a BasicWindow with the given child component and, if specified, the given hints (which map to values of the Window$Hint enum, e.g. :CENTERED or :FULL_SCREEN)."
-  ([title child]
-   (doto (BasicWindow. (str "╼ " title " ╾"))
-     (.setComponent child)))
-  ([title child & hints]
-   (doto (BasicWindow. (str "╼ " title " ╾"))
-     (.setComponent child)
-     (.setHints (vec (->> hints (map name) (map WindowHints)))))))
+(defn Label
+  "Create a Label, optionally with specified foreground and background colours."
+  ([text] (com.googlecode.lanterna.gui2.Label. text))
+  ([text fg] (doto (Label text) (.setForegroundColour (Colour fg))))
+  ([text fg bg] (doto (Label text fg) (.setBackgroundColor (Colour bg)))))
 
-(defn- pad-and-fill-grid
-  "Given a BottomJustifiedColumn or RightJustifiedRow, add the necessary padding component to produce the bottom/right justification, then add all the actual children and return the panel."
-  [panel children]
-  (.addComponent panel (Label "") (GridAlignment :FILL :FILL true true))
-  (->> children
-       (map #(.addComponent panel %1 (GridAlignment :FILL :FILL false false)))
-       dorun)
-  panel)
+(defmacro proxy-super-cls [cls meth & args]
+  (let [thissym (with-meta (gensym) {:tag cls})]
+    `(let [~thissym ~'this]
+      (proxy-call-with-super (fn [] (. ~thissym ~meth ~@args)) ~thissym ~(name meth))
+    )))
 
-(defn BottomJustify
-  "Equivalent to (LinearContainer parent :direction :VERTICAL :children children)
-  except that the children are bottom justified in the container. Uses GridLayout
-  internally."
-  [parent children & args]
-  (pad-and-fill-grid
-    (apply GridContainer parent :width 1 args)
-    children))
-
-(defn RightJustify
-  "Equivalent to (LinearContainer parent :direction :HORIZONTAL :children children)
-  except that the children are right justified in the container. Uses GridLayout
-  internally."
-  [parent children & args]
-  (pad-and-fill-grid
-    (apply GridContainer parent :width (-> children count inc) args)
-    children))
+(defn ViewLabel
+  "Create a Label with a dynamically updating label. On each rendering pass,
+  (labelfn) will be called and whatever it returns will be used as the label."
+  [labelfn]
+  (proxy [com.googlecode.lanterna.gui2.Label] [(labelfn)]
+    ; This is an ugly hack: we know getLabelWidth() is called at the start of
+    ; each drawing pass, so we override it to update the label contents first.
+    ; Overriding getText() doesn't work because this isn't used in the drawing
+    ; pass -- it's just an accessor for internal fields that the renderer
+    ; accesses directly.
+    (getLabelWidth []
+                   (.setText ^com.googlecode.lanterna.gui2.Label this (labelfn))
+                   (proxy-super-cls com.googlecode.lanterna.gui2.Label getLabelWidth))))
