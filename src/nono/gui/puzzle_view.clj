@@ -5,6 +5,7 @@
             [schema.core :as s :refer [def defn]]
             [lanterna.widgets :refer [proxy-super-cls]]
             [lanterna.containers :refer [GridPanel]]
+            [nono.gui.help :as help]
             [clojure.core.matrix :as mx])
   (:import (com.googlecode.lanterna.gui2 Panel Button Button$FlatButtonRenderer Interactable$Result)
            ))
@@ -14,6 +15,8 @@
                 :full :empty
                 :empty :full
                 :mark :full})
+
+(def ^:dynamic *text-gui* nil)
 
 (defmulti press-button
   (fn dispatcher [keystroke & args] (.getCharacter keystroke)))
@@ -31,6 +34,12 @@
   true)
 (defmethod press-button \v [_ game row col]
   (game/set-cell! game row col :mark))
+(defmethod press-button \h [_ game row col]
+  (help/show-help *text-gui*))
+(defmethod press-button \? [_ game row col]
+  (help/show-help *text-gui*))
+(defmethod press-button \q [_ game row col]
+  (.. *text-gui* .getActiveWindow .close))
 (defmethod press-button :default [_ game row col]
   false)
 
@@ -42,9 +51,10 @@
       (createDefaultRenderer [] (Button$FlatButtonRenderer.))
       (getLabel [] (labeler))
       (handleKeyStroke [keystroke]
-                       (if (press-button keystroke game row col)
-                         Interactable$Result/HANDLED
-                         (proxy-super-cls Button handleKeyStroke keystroke)))
+                       (binding [*text-gui* (.getTextGUI this)]
+                         (if (press-button keystroke game row col)
+                           Interactable$Result/HANDLED
+                           (proxy-super-cls Button handleKeyStroke keystroke))))
       (afterEnterFocus [how from]
                        (game/set-position! game row col)))))
 
