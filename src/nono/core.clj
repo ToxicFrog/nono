@@ -1,4 +1,5 @@
 (println "Loading program...")
+; (set! *warn-on-reflection* true)
 
 (ns nono.core
   (:gen-class)

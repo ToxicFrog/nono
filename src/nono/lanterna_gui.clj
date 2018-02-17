@@ -14,6 +14,12 @@
        (getLabel [] (labelfn))
        (createDefaultRenderer [] (Button$FlatButtonRenderer.)))))
 
+(defmacro proxy-super-cls [cls meth & args]
+  (let [thissym (with-meta (gensym) {:tag cls})]
+    `(let [~thissym ~'this]
+      (proxy-call-with-super (fn [] (. ~thissym ~meth ~@args)) ~thissym ~(name meth))
+    )))
+
 (defn ViewLabel [labelfn]
   (proxy [Label] [(labelfn)]
     ; This is an ugly hack: we know getLabelWidth() is called at the start of
@@ -22,8 +28,8 @@
     ; pass -- it's just an accessor for internal fields that the renderer
     ; accesses directly.
     (getLabelWidth []
-                   (.setText this (labelfn))
-                   (proxy-super getLabelWidth))))
+                   (.setText ^Label this (labelfn))
+                   (proxy-super-cls Label getLabelWidth))))
 
 (def tiles {:full "██" :empty "╶ " :??? "░░"})
 (def next-tile {:??? :full
