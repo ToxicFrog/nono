@@ -28,10 +28,9 @@
   (swap! game #(assoc % :row row :col col)))
 
 (defn update-cell! [game row col func]
-  (swap! game
-         (fn [game]
-           (-> game
-               (update-in [:puzzle :grid row col] func)))))
+  (swap! game (fn [game]
+                (assoc game :puzzle
+                  (ng/update-cell (game :puzzle) row col func)))))
 
 (defn set-cell! [game row col val]
   (update-cell! game row col (constantly val)))

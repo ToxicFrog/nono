@@ -71,3 +71,9 @@
 (defn file->nonogram :- Nonogram
   [filename :- s/Str]
   (-> filename slurp string/split-lines lines->nonogram))
+
+(defn update-cell :- Nonogram
+  [ng :- Nonogram, row :- s/Int, col :- s/Int, update :- (s/=> CellState CellState)]
+  (-> ng
+      (update-in [:grid row col] update)
+      (cell->hints row col)))
