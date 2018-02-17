@@ -7,21 +7,22 @@
 
 ; Types!
 (def Game
-  (s/atom
-    {; Cursor position
-     :row s/Int
-     :col s/Int
-     ; The thing the user edits to try to match the target picture.
-     :puzzle ng/Nonogram
-     ; The target picture the user is trying to match.
-     :picture ng/Nonogram}))
+  {; Cursor position
+   :row s/Int
+   :col s/Int
+   ; The thing the user edits to try to match the target picture.
+   :puzzle ng/Nonogram
+   ; The target picture the user is trying to match.
+   :picture ng/Nonogram})
+(def GameAtom (s/atom Game))
 
-(defn create-state :- Game
+(defn create-state :- GameAtom
   [nonogram :- ng/Nonogram]
   (atom
     {:row 0 :col 0
      :picture nonogram
-     :puzzle (update nonogram :grid (partial mx/emap (constantly :???)))}))
+     :puzzle (update nonogram :grid (partial mx/emap (constantly :???)))}
+    :validator (partial s/validate Game)))
 
 (defn set-position! [game row col]
   (swap! game #(assoc % :row row :col col)))
@@ -36,13 +37,13 @@
   (update-cell! game row col (constantly val)))
 
 (defn get-cell :- ng/CellState
-  [game :- Game, row :- s/Int, col :- s/Int]
+  [game :- GameAtom, row :- s/Int, col :- s/Int]
   (mx/mget (-> @game :puzzle :grid) row col))
 
 (defn row :- ng/GridSlice
-  [game :- Game, row :- s/Int]
+  [game :- GameAtom, row :- s/Int]
   (mx/select (-> @game :puzzle :grid) row :all))
 
 (defn col :- ng/GridSlice
-  [game :- Game, col :- s/Int]
+  [game :- GameAtom, col :- s/Int]
   (mx/select (-> @game :puzzle :grid) :all col))

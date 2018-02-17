@@ -32,7 +32,7 @@
                (hints/row-hints game) (VSep) (playfield game)]
     ))
 
-(defn run :- s/Any [game :- game/Game]
+(defn run :- s/Any [game :- game/GameAtom]
   (let [window (Window (-> @game :puzzle :title)
                        (nono-panel game)
                        :CENTERED)]

@@ -2,6 +2,7 @@
   "Nono-specific code that has to interface directly with Lanterna."
   (:require [nono.game :as game]
             [lanterna.settings :refer [Colour Theme]]
+            [schema.core :as s :refer [def defn]]
             [clojure.core.matrix :as mx])
   (:import (com.googlecode.lanterna.gui2 Button Button$FlatButtonRenderer Label)
            ))
@@ -36,9 +37,9 @@
                 :full :empty
                 :empty :full})
 
-(defn CellButton
+(defn CellButton :- s/Any
   "Create a button associated with a single cell in the grid."
-  [game [row col]]
+  [game :- game/GameAtom, [row col] :- [s/Int]]
   (let [labeler (fn [] (tiles (game/get-cell game row col)))
         handler (partial game/update-cell! game row col next-tile)]
     (proxy [Button] [(labeler) handler]

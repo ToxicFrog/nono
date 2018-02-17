@@ -17,7 +17,8 @@
    :width s/Int
    :height s/Int
    :grid Grid
-   :hints { :row [Hint] :col [Hint] }
+   :hints {:row (s/constrained [Hint] associative?)
+           :col (s/constrained [Hint] associative?)}
    })
 
 (defn row :- GridSlice
@@ -60,8 +61,8 @@
      :grid grid
      :width cols
      :height rows
-     :hints {:col (map slice->hints (mx/columns grid))
-             :row (map slice->hints (mx/rows grid))}}))
+     :hints {:col (mapv slice->hints (mx/columns grid))
+             :row (mapv slice->hints (mx/rows grid))}}))
 
 (defn str->nonogram :- Nonogram
   [pattern :- s/Str]
