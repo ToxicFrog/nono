@@ -14,11 +14,11 @@
 
 (println "Starting game...")
 
-; debug builds only!
-(s/set-fn-validation! true)
 (set! spec/*explain-out* expound/printer)
 
 (defn -main [& args]
+  (if (= (first args) "debug")
+    (s/set-fn-validation! true))
   (let [game (-> "puzzles/qr.json"
                  io/resource
                  slurp
