@@ -3,6 +3,8 @@
   (:require [clojure.string :as string]
             [clojure.core.matrix :as mx]
             [clojure.data.json :as json]
+            [clojure.java.io :as io]
+            [nono.downloader :as downloader]
             [schema.core :as s :refer [def defn fn]]))
 
 ; Types!
@@ -63,7 +65,7 @@
 ;; Stuff for loading nonograms
 (def char->cell {\. :empty \# :full})
 
-(defn- hints->nonogram
+(defn- from-hints
   [title row-hints col-hints]
   (let [width (count col-hints)
         height (count row-hints)]
@@ -73,31 +75,33 @@
      :hints {:col col-hints :row row-hints}
      :grid (mx/matrix (mx/broadcast :??? [height width]))}))
 
-(defn json->nonogram :- Nonogram
+(defn from-json :- Nonogram
   [text :- s/Str]
   (let [value (json/read-str text :key-fn keyword)]
     ; TODO: support nonogram definitions that define the grid rather than (or
     ; as well as) the hints.
-    (hints->nonogram
+    (from-hints
       (value :title "(untitled)")
       (value :rows)
       (value :columns))))
 
-; (defn- lines->nonogram
-;   "Given a list of lines, turn it into a nonogram. The first line is assumed to
-;   be the title of the nonogram, subsequent lines are image data where # is filled
-;   and . is blank."
-;   [lines]
-;   (let [grid (->> (rest lines) (map vec) (mx/emap char->cell))
-;         [rows cols] (mx/shape grid)]
-;     {:title (first lines)
-;      :grid grid
-;      :width cols
-;      :height rows
-;      :hints {:col (mapv slice->hints (mx/columns grid))
-;              :row (mapv slice->hints (mx/rows grid))}}))
+(defn from-resource :- Nonogram
+  [path]
+  (-> path io/resource slurp from-json))
 
-; (defn file->nonogram :- Nonogram
-;   [filename :- s/Str]
-;   (-> filename slurp string/split-lines lines->nonogram))
+(defn from-file :- Nonogram
+  [path]
+  (-> path slurp from-json))
 
+(defn from-nonograms-org :- Nonogram
+  [id :- s/Int]
+  (let [[title grid] (downloader/get-puzzle id)
+        [height width] (mx/shape grid)
+        grid (mx/emap [:empty :full] grid)]
+    {:title title
+     :width width
+     :height height
+     :grid grid
+     :hints {:row (mapv slice->hints (mx/rows grid))
+             :col (mapv slice->hints (mx/columns grid))}}
+    ))
