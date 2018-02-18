@@ -24,7 +24,9 @@
 (defn run :- s/Any [game :- game/GameAtom]
   (let [window (Window (-> @game :puzzle :title)
                        (nono-panel game)
-                       :CENTERED)]
-    (doto (MultiWindowTextGUI (-> "theme.properties" io/resource PropertyTheme))
+                       :CENTERED)
+        text-gui (MultiWindowTextGUI (-> "theme.properties" io/resource PropertyTheme))]
+    (doto text-gui
       (.addWindow window)
-      (.waitForWindowToClose window))))
+      (.waitForWindowToClose window))
+    (.close (.getScreen text-gui))))

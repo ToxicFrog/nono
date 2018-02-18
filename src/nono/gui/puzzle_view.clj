@@ -60,7 +60,7 @@
   (help/show-help *text-gui*)
   true)
 (defmethod press-button \q [_ game row col]
-  (.. *text-gui* .getActiveWindow .close)
+  (.. *text-gui* getActiveWindow close)
   true)
 
 ;; Fallback; returning false means the caller will super().
