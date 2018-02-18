@@ -12,12 +12,11 @@
             [clojure.java.io :as io]
             [schema.core :as s]))
 
-(println "Starting game...")
-
-(set! spec/*explain-out* expound/printer)
 
 (defn -main [& args]
+  (println "Starting game...")
   (if (= (first args) "debug")
+    (set! spec/*explain-out* expound/printer)
     (s/set-fn-validation! true))
   (let [game (-> "puzzles/qr.json"
                  io/resource
