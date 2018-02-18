@@ -2,6 +2,7 @@
   "Tools for working with Nonogram data."
   (:require [clojure.string :as string]
             [clojure.core.matrix :as mx]
+            [clojure.data.json :as json]
             [schema.core :as s :refer [def defn fn]]))
 
 ; Types!
@@ -21,6 +22,7 @@
            :col (s/constrained [Hint] associative?)}
    })
 
+;; Accessors
 (defn row :- GridSlice
   [nonogram :- Nonogram, row :- s/Int]
   (mx/select (nonogram :grid) row :all))
@@ -28,8 +30,6 @@
 (defn col :- GridSlice
   [nonogram :- Nonogram, col :- s/Int]
   (mx/select (nonogram :grid) :all col))
-
-(def char->cell {\. :empty \# :full})
 
 (defn- slice->hints
   "Make the hints for a line by splitting it into runs of adjacent tiles and
@@ -50,28 +50,6 @@
       (assoc-in [:hints :col c]
                 (slice->hints (col ng c)))))
 
-(defn- lines->nonogram
-  "Given a list of lines, turn it into a nonogram. The first line is assumed to
-  be the title of the nonogram, subsequent lines are image data where # is filled
-  and . is blank."
-  [lines]
-  (let [grid (->> (rest lines) (map vec) (mx/emap char->cell))
-        [rows cols] (mx/shape grid)]
-    {:title (first lines)
-     :grid grid
-     :width cols
-     :height rows
-     :hints {:col (mapv slice->hints (mx/columns grid))
-             :row (mapv slice->hints (mx/rows grid))}}))
-
-(defn str->nonogram :- Nonogram
-  [pattern :- s/Str]
-  (-> pattern string/split-lines lines->nonogram))
-
-(defn file->nonogram :- Nonogram
-  [filename :- s/Str]
-  (-> filename slurp string/split-lines lines->nonogram))
-
 (defn update-cell :- Nonogram
   [ng :- Nonogram, row :- s/Int, col :- s/Int, update :- (s/=> CellState CellState)]
   (-> ng
@@ -81,3 +59,45 @@
 (defn map-grid :- Nonogram
   [func :- (s/=> [[s/Int s/Int] CellState] CellState), ng :- Nonogram]
   (update ng :grid (partial mx/emap-indexed func)))
+
+;; Stuff for loading nonograms
+(def char->cell {\. :empty \# :full})
+
+(defn- hints->nonogram
+  [title row-hints col-hints]
+  (let [width (count col-hints)
+        height (count row-hints)]
+    {:title title
+     :width width
+     :height height
+     :hints {:col col-hints :row row-hints}
+     :grid (mx/matrix (mx/broadcast :??? [height width]))}))
+
+(defn json->nonogram :- Nonogram
+  [text :- s/Str]
+  (let [value (json/read-str text :key-fn keyword)]
+    ; TODO: support nonogram definitions that define the grid rather than (or
+    ; as well as) the hints.
+    (hints->nonogram
+      (value :title "(untitled)")
+      (value :rows)
+      (value :columns))))
+
+; (defn- lines->nonogram
+;   "Given a list of lines, turn it into a nonogram. The first line is assumed to
+;   be the title of the nonogram, subsequent lines are image data where # is filled
+;   and . is blank."
+;   [lines]
+;   (let [grid (->> (rest lines) (map vec) (mx/emap char->cell))
+;         [rows cols] (mx/shape grid)]
+;     {:title (first lines)
+;      :grid grid
+;      :width cols
+;      :height rows
+;      :hints {:col (mapv slice->hints (mx/columns grid))
+;              :row (mapv slice->hints (mx/rows grid))}}))
+
+; (defn file->nonogram :- Nonogram
+;   [filename :- s/Str]
+;   (-> filename slurp string/split-lines lines->nonogram))
+

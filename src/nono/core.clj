@@ -9,6 +9,7 @@
             [nono.game :as game]
             [clojure.spec.alpha :as spec]
             [expound.alpha :as expound]
+            [clojure.java.io :as io]
             [schema.core :as s]))
 
 (println "Starting game...")
@@ -17,6 +18,10 @@
 (s/set-fn-validation! true)
 (set! spec/*explain-out* expound/printer)
 
-(defn -main [filename & args]
-  (let [game (-> (ng/file->nonogram filename) (game/create-state))]
+(defn -main [& args]
+  (let [game (-> "puzzles/qr.json"
+                 io/resource
+                 slurp
+                 ng/json->nonogram
+                 game/create-state)]
     (gui/run game)))
