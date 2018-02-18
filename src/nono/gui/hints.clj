@@ -23,6 +23,9 @@
    [true false true]  (Theme [0x70 0x70 0x70] [0x20 0x20 0x20])
    [true true false]  (Theme [0x00 0x60 0x60] [0x00 0x20 0x20])
    [true true true]   (Theme [0x00 0x70 0x70] [0x00 0x40 0x40])
+   ; themes for victory and defeat
+   :victory (Theme [0x00 0xFF 0x80] [0x00 0x00 0x00] :bold)
+   :defeat (Theme [0x00 0x00 0x00] [0xFF 0x00 0x00] :bold)
    })
 
 (defn- hint-matches? [game key n]
@@ -38,7 +41,9 @@
     ; getTheme will eventually be called by children of the panel to figure out
     ; their theme, if they are not themed specifically.
     (getTheme
-      [] (themes [(hint-matches? game key n) (-> @game key (= n)) (even? n)]))))
+      [] (if (= (-> @game :puzzle :grid) (-> @game :picture :grid))
+           (themes :victory)
+           (themes [(hint-matches? game key n) (-> @game key (= n)) (even? n)])))))
 
 (defn- ->row-hint
   "Turn the hints for a single row into a panel containing them with 1em spacing between them."
