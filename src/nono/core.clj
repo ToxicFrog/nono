@@ -5,6 +5,7 @@
   (:gen-class)
   (:require [nono.nonogram :as ng]
             [nono.gui :as gui]
+            [nono.gui.load :as load]
             [nono.game :as game]
             [clojure.spec.alpha :as spec]
             [expound.alpha :as expound]
@@ -17,5 +18,8 @@
     (do
       (set! spec/*explain-out* expound/printer)
       (s/set-fn-validation! true)))
-  ; (-> "puzzles/qr.json" ng/from-resource game/create-state gui/run)
-  (-> 16903 ng/from-nonograms-org game/create-state gui/run))
+  (let [text-gui (gui/create-gui)
+        id (load/load-puzzle text-gui)
+        game (-> id ng/from-nonograms-org game/create-state)]
+    (gui/run text-gui game)))
+  ; ; (-> "puzzles/qr.json" ng/from-resource game/create-state gui/run)

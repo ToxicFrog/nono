@@ -25,11 +25,13 @@
                (hint-panel game :row) (VSep)   (puzzle-view game)]
     ))
 
-(defn run :- s/Any [game :- game/GameAtom]
+(defn create-gui []
+  (MultiWindowTextGUI (-> "theme.properties" io/resource PropertyTheme)))
+
+(defn run :- s/Any [text-gui :- s/Any, game :- game/GameAtom]
   (let [window (Window (-> @game :puzzle :title)
                        (nono-panel game)
-                       :CENTERED)
-        text-gui (MultiWindowTextGUI (-> "theme.properties" io/resource PropertyTheme))]
+                       :CENTERED)]
     (doto text-gui
       (.addWindow window)
       (.waitForWindowToClose window))
