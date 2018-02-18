@@ -27,7 +27,7 @@
 
 (defn GridContainer
   [container & {:keys [width margins spacing children align]
-                :or {margins 0 spacing 0 children [] align [:FILL :FILL]}}]
+                :or {margins 0 spacing 0 children [] align [:fill :fill]}}]
   (add-children
     (doto container
       (.setLayoutManager (GridLayout :width width
@@ -41,14 +41,14 @@
 (defn- pad-and-fill-grid
   "Given a BottomJustifiedColumn or RightJustifiedRow, add the necessary padding component to produce the bottom/right justification, then add all the actual children and return the panel."
   [panel children]
-  (.addComponent panel (Label. "") (GridAlignment :FILL :FILL true true))
+  (.addComponent panel (Label. "") (GridAlignment :fill :fill true true))
   (->> children
-       (map #(.addComponent panel %1 (GridAlignment :FILL :FILL false false)))
+       (map #(.addComponent panel %1 (GridAlignment :fill :fill false false)))
        dorun)
   panel)
 
 (defn BottomJustify
-  "Equivalent to (LinearContainer parent :direction :VERTICAL :children children)
+  "Equivalent to (LinearContainer parent :direction :vertical :children children)
   except that the children are bottom justified in the container. Uses GridLayout
   internally."
   [parent children & args]
@@ -57,7 +57,7 @@
     children))
 
 (defn RightJustify
-  "Equivalent to (LinearContainer parent :direction :HORIZONTAL :children children)
+  "Equivalent to (LinearContainer parent :direction :horizontal :children children)
   except that the children are right justified in the container. Uses GridLayout
   internally."
   [parent children & args]

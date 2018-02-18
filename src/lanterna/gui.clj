@@ -1,4 +1,5 @@
 (ns lanterna.gui
+  (:require [clojure.string :as string])
   (:import (com.googlecode.lanterna.gui2 DefaultWindowManager EmptySpace
                                          BasicWindow Window$Hint)
            (com.googlecode.lanterna.screen TerminalScreen)
@@ -25,7 +26,7 @@
   ([title child & hints]
    (doto (BasicWindow. (str "╼ " title " ╾"))
      (.setComponent child)
-     (.setHints (vec (->> hints (map name) (map WindowHints)))))))
+     (.setHints (mapv (comp WindowHints string/upper-case name) hints)))))
 
 (defn MultiWindowTextGUI
   "Create and initialize an empty MultiWindowTextGUI bound to the default terminal."

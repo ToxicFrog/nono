@@ -31,7 +31,7 @@
 (defn run :- s/Any [text-gui :- s/Any, game :- game/GameAtom]
   (let [window (Window (-> @game :puzzle :title)
                        (nono-panel game)
-                       :CENTERED)]
+                       :centered)]
     (doto text-gui
       (.addWindow window)
       (.waitForWindowToClose window))

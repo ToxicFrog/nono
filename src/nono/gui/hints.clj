@@ -57,12 +57,12 @@
 
 (defn hint-panel
   [game key]
-  (let [dir (key {:col :HORIZONTAL :row :VERTICAL})
+  (let [dir (key {:col :horizontal :row :vertical})
         row-builder (key {:col ->col-hint :row ->row-hint})]
     (LinearPanel
       :direction dir
       :padding 0
-      :align :Fill
+      :align :fill
       :children (map-indexed
                   (partial row-builder game)
                   (-> @game :picture :hints key)))))
