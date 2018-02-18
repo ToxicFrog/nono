@@ -1,9 +1,10 @@
 TODO (in approximate priority order)
-- key mappings for basic play
-- load JSON puzzles including those that consist only of hints
+- check modes:
+  - immediate check: make a mistake and it glows red and the mistakes count incs
+  - on-demand check: press a button and it shows you all mistakes you've made
+- do something fancy when the puzzle is solved
 - downloader of puzzles from nonograms.org
-- bundle puzzles in jar and load them?
-- more key mappings?
+- load JSON puzzles that contain grid instead of hints
 
 There's a nonograms.org downloader at
 https://github.com/ThomasR/nonogram-solver/tree/develop/puzzles/nonograms.org
