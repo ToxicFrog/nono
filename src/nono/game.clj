@@ -10,6 +10,8 @@
   {; Cursor position
    :row s/Int
    :col s/Int
+   ; Number of mistakes made, in game modes that support that.
+   :errors s/Int
    ; The thing the user edits to try to match the target picture.
    :puzzle ng/Nonogram
    ; The target picture the user is trying to match.
@@ -30,7 +32,7 @@
 (defn create-state :- GameAtom
   [nonogram :- ng/Nonogram]
   (atom
-    {:row 0 :col 0
+    {:row 0 :col 0 :errors 0
      :picture nonogram
      :puzzle (copy-and-clear nonogram)}
     :validator (partial s/validate Game)))
@@ -76,3 +78,14 @@
              (fn [[r c] val]
                (if (and (= c col) (#{:mark :???} val))
                  state val)))))
+
+(defn won? :- s/Bool
+  "True if the game has been won."
+  [game :- GameAtom]
+  (= (-> @game :puzzle :grid) (-> @game :picture :grid)))
+
+(defn lost? :- s/Bool
+  "True if the game has been lost (e.g. in modes where you have a limited number
+  of mistakes permitted). Not yet implemented."
+  [game :- GameAtom]
+  false)

@@ -41,9 +41,10 @@
     ; getTheme will eventually be called by children of the panel to figure out
     ; their theme, if they are not themed specifically.
     (getTheme
-      [] (if (= (-> @game :puzzle :grid) (-> @game :picture :grid))
-           (themes :victory)
-           (themes [(hint-matches? game key n) (-> @game key (= n)) (even? n)])))))
+      [] (cond
+           (game/won? game) (themes :victory)
+           (game/lost? game) (themes :defeat)
+           :else (themes [(hint-matches? game key n) (-> @game key (= n)) (even? n)])))))
 
 (defn- ->row-hint
   "Turn the hints for a single row into a panel containing them with 1em spacing between them."

@@ -38,8 +38,9 @@
   "Create a Label with a dynamically updating label. On each rendering pass,
   (labelfn) will be called and whatever it returns will be used as the label.
   It may also style the label by calling setTheme() or set*groundColour()."
-  [labelfn]
-  (proxy [com.googlecode.lanterna.gui2.Label] [(labelfn)]
+  [labelfn & args]
+  ; Pass "" at initialization time because we don't have a 'this pointer yet.
+  (proxy [com.googlecode.lanterna.gui2.Label] [""]
     ; This is an ugly hack. We can't override getText() because it isn't used
     ; during the drawing pass; the renderer accesses the label's internal text
     ; fields directly. Instead we override getThemeDefinition(), which is called
@@ -48,5 +49,5 @@
     ; This has the added advantage that the labeler is invoked (just) before the
     ; theme is read, meaning that we can change the label's themes, too.
     (getThemeDefinition []
-                        (.setText ^com.googlecode.lanterna.gui2.Label this (labelfn))
+                        (.setText ^com.googlecode.lanterna.gui2.Label this (apply labelfn this args))
                         (proxy-super-cls com.googlecode.lanterna.gui2.Label getThemeDefinition))))
