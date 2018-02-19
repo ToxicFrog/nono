@@ -2,9 +2,11 @@ TODO (in approximate priority order)
 - check modes:
   - immediate check: make a mistake and it glows red and the mistakes count incs
   - on-demand check: press a button and it shows you all mistakes you've made
+  - lives: every time you make a mistake a lives counter decreases, game over at 0
 - do something fancy when the puzzle is solved
-- downloader of puzzles from nonograms.org
-- load JSON puzzles that contain grid instead of hints
+  - hints glow green (DONE)
+  - status window displays victory
+- undo command
 
 There's a nonograms.org downloader at
 https://github.com/ThomasR/nonogram-solver/tree/develop/puzzles/nonograms.org

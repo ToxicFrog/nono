@@ -36,14 +36,17 @@
 
 (defn ViewLabel
   "Create a Label with a dynamically updating label. On each rendering pass,
-  (labelfn) will be called and whatever it returns will be used as the label."
+  (labelfn) will be called and whatever it returns will be used as the label.
+  It may also style the label by calling setTheme() or set*groundColour()."
   [labelfn]
   (proxy [com.googlecode.lanterna.gui2.Label] [(labelfn)]
-    ; This is an ugly hack: we know getLabelWidth() is called at the start of
-    ; each drawing pass, so we override it to update the label contents first.
-    ; Overriding getText() doesn't work because this isn't used in the drawing
-    ; pass -- it's just an accessor for internal fields that the renderer
-    ; accesses directly.
-    (getLabelWidth []
-                   (.setText ^com.googlecode.lanterna.gui2.Label this (labelfn))
-                   (proxy-super-cls com.googlecode.lanterna.gui2.Label getLabelWidth))))
+    ; This is an ugly hack. We can't override getText() because it isn't used
+    ; during the drawing pass; the renderer accesses the label's internal text
+    ; fields directly. Instead we override getThemeDefinition(), which is called
+    ; at the start of rendering, and thus any changes it makes to the label's
+    ; text will take effect on that rendering pass.
+    ; This has the added advantage that the labeler is invoked (just) before the
+    ; theme is read, meaning that we can change the label's themes, too.
+    (getThemeDefinition []
+                        (.setText ^com.googlecode.lanterna.gui2.Label this (labelfn))
+                        (proxy-super-cls com.googlecode.lanterna.gui2.Label getThemeDefinition))))
