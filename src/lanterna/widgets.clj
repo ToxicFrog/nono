@@ -3,7 +3,7 @@
   (:require [lanterna.settings :refer [Colour GridAlignment GridLayout
                                        Dir LinearAlignment LinearLayout]])
   (:import (com.googlecode.lanterna.gui2
-             BasicWindow Window$Hint Panel Separator
+             BasicWindow Window$Hint Panel Separator ActionListBox
              Button$FlatButtonRenderer)))
 
 (defn VSep [] (Separator. com.googlecode.lanterna.gui2.Direction/VERTICAL))
@@ -51,3 +51,11 @@
     (getThemeDefinition []
                         (.setText ^com.googlecode.lanterna.gui2.Label this (apply labelfn this args))
                         (proxy-super-cls com.googlecode.lanterna.gui2.Label getThemeDefinition))))
+
+(defn ActionList
+  "Create an ActionList with the given actions (functions) and labels."
+  [& actions]
+  (let [list (ActionListBox.)]
+    (dorun (for [[label action] (partition 2 actions)]
+             (.addItem list label action)))
+    list))

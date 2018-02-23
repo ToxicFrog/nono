@@ -95,13 +95,14 @@
 
 (defn from-nonograms-org :- Nonogram
   [id :- s/Int]
-  (let [[title grid] (downloader/get-puzzle id)
-        [height width] (mx/shape grid)
-        grid (mx/emap [:empty :full] grid)]
-    {:title title
-     :width width
-     :height height
-     :grid grid
-     :hints {:row (mapv slice->hints (mx/rows grid))
-             :col (mapv slice->hints (mx/columns grid))}}
-    ))
+  (if-let [puzzle (downloader/get-puzzle id)]
+    (let [[title grid] puzzle
+          [height width] (mx/shape grid)
+          grid (mx/emap [:empty :full] grid)]
+      {:title title
+       :width width
+       :height height
+       :grid grid
+       :hints {:row (mapv slice->hints (mx/rows grid))
+               :col (mapv slice->hints (mx/columns grid))}})
+    nil))

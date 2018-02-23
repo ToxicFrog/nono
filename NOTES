@@ -5,11 +5,48 @@ TODO (in approximate priority order)
   - lives: every time you make a mistake a lives counter decreases, game over at 0
 - do something fancy when the puzzle is solved
   - hints glow green (DONE)
-  - status window displays victory
-- undo command
+  - status window displays victory (DONE)
+  - display victory screen,return to main menu (once implemented)
+- undo command (what depth?)
+- built in list of nonograms.org puzzles to select from
+- remember which nonograms were completed
+- settings for different check modes, difficulty level
 
 There's a nonograms.org downloader at
 https://github.com/ThomasR/nonogram-solver/tree/develop/puzzles/nonograms.org
+
+## Intended game flow
+
+Starting the game takes you to the puzzle select screen. This is probably a
+local cache updated from nonograms.org at startup
+  www.nonograms.org/size/{small,medium,large}/p/{id}
+  ordered newest first, so read until you see an ID you already have and bam,
+  cache is updated
+Select a puzzle and you start playing it. If you were previously playing it, it
+picks up from where you left off, including undo information.
+Puzzles you have completed are marked as such (with score?)
+Completing a puzzle immediately brings up a "puzzle complete" screen replacing
+the normal game screen, showing your score/total time and the puzzle image.
+From that you can exit back to the puzzle select screen.
+There's something you can do that lets you open a menu with options like reset
+puzzle/load different puzzle/quit game/change settings.
+
+
+; startup: display main menu with small/medium/large/settings/help/exit
+; help brings up existing help screen, exit does what it says on the tin
+; selecting a size reads the corresponding index and brings up a puzzle picker
+; and then calls waitForWindowToClose()
+; puzzle picker waits for user to pick a puzzle, brings up game screen, and
+; again waitForWindowToClose()
+; perhaps needs to make itself invisible first?
+; game screen plays until the user exits the game (== close the window), or until
+; the game is definitively won (or lost, in a mode that supports that)
+; at that point I think it needs to:
+; - hide self
+; - show defeat/victory screen
+; - wait for close
+; - close self
+
 
 ## Graphics
 

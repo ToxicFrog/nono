@@ -1,8 +1,8 @@
-(ns nono.gui
+(ns nono.gui.game
   (:require [lanterna.widgets :refer [VSep HSep Label ViewLabel]]
             [lanterna.containers :refer [GridPanel]]
             [lanterna.settings :refer [PropertyTheme Theme]]
-            [lanterna.gui :refer [Window MultiWindowTextGUI]]
+            [lanterna.gui :refer [Window run-window]]
             [nono.gui.puzzle-view :refer [puzzle-view]]
             [nono.gui.hints :refer [hint-panel]]
             [nono.game :as game]
@@ -37,14 +37,10 @@
                (hint-panel game :row) (VSep)   (puzzle-view game)]
     ))
 
-(defn create-gui []
-  (MultiWindowTextGUI (-> "theme.properties" io/resource PropertyTheme)))
-
-(defn run :- s/Any [text-gui :- s/Any, game :- game/GameAtom]
-  (let [window (Window (-> @game :puzzle :title)
-                       (nono-panel game)
-                       :centered)]
-    (doto text-gui
-      (.addWindow window)
-      (.waitForWindowToClose window))
-    (.close (.getScreen text-gui))))
+(defn play-game :- s/Any
+  [text-gui :- s/Any, game :- game/GameAtom]
+  (run-window
+    text-gui
+    (Window (-> @game :puzzle :title)
+            (nono-panel game)
+            :centered)))

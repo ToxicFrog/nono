@@ -39,3 +39,17 @@
       (com.googlecode.lanterna.gui2.MultiWindowTextGUI.
         (DefaultWindowManager.) (EmptySpace.))
       (doto (.setTheme theme))))
+
+(def ^:dynamic *text-gui* nil)
+(defn run-window
+  [text-gui root-window]
+  (binding [*text-gui* text-gui]
+    (doto text-gui
+      (.addWindow root-window)
+      (.waitForWindowToClose root-window))))
+
+(defn create-and-run
+  [theme root-window]
+  (let [text-gui (MultiWindowTextGUI theme)]
+    (run-window text-gui root-window)
+    (.. text-gui getScreen close)))

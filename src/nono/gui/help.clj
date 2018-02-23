@@ -1,6 +1,6 @@
 (ns nono.gui.help
   "The help window."
-  (:import (com.googlecode.lanterna.gui2.dialogs MessageDialog MessageDialogButton)))
+  (:require [lanterna.dialogs :refer [show-message-dialog]]))
 
 (def help-text
   "   space : fill box        h, ? : this screen
@@ -11,6 +11,4 @@
     \\, | : finish column with clear/full")
 
 (defn show-help [text-gui]
-  (MessageDialog/showMessageDialog
-    text-gui "Help" help-text
-    (into-array MessageDialogButton [MessageDialogButton/OK])))
+  (show-message-dialog text-gui "Help" help-text :OK))

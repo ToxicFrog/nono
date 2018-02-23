@@ -59,5 +59,7 @@
 
 (defn get-puzzle [id]
   (let [page (get-url (str "http://www.nonograms.org/nonograms/i/" id))
-        grid (-> page extract-data decode-grid mx/matrix)]
-    [(extract-title page) grid]))
+        grid (some-> page extract-data decode-grid mx/matrix)]
+    (if grid
+      [(extract-title page) grid]
+      nil)))
