@@ -5,13 +5,16 @@
             [nono.gui.game :as game-ui]
             [nono.game :as game]
             [nono.nonogram :as ng]
-            [lanterna.dialogs :refer [show-message-dialog]]
+            [lanterna.dialogs :refer [show-message-dialog show-waiting-dialog]]
             [lanterna.widgets :refer [ActionList]]
             [lanterna.gui :refer [Window *text-gui*]]))
 
 (defn play-by-id []
   (let [id (load/load-puzzle *text-gui*)
+        waiting (show-waiting-dialog *text-gui* "Loading"
+                                     (str "Downloading puzzle #" id))
         game (some-> id ng/from-nonograms-org game/create-state)]
+    (.close waiting)
     (if game
       (game-ui/play-game *text-gui* game)
       (show-message-dialog *text-gui* "Error"
