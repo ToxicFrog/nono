@@ -2,8 +2,8 @@
   "Constructors and utility functions for tinned Lanterna dialogs."
   (:import (java.lang Enum)
            (com.googlecode.lanterna.gui2 Window$Hint)
-           (com.googlecode.lanterna.gui2.dialogs MessageDialog MessageDialogButton
-                                                 WaitingDialog TextInputDialog)))
+           (com.googlecode.lanterna.gui2.dialogs
+             MessageDialog MessageDialogButton WaitingDialog TextInputDialog ListSelectDialog)))
 
 (defn show-message-dialog
   [text-gui title text & buttons]
@@ -22,3 +22,11 @@
 (defn show-number-dialog
   [text-gui title caption default]
   (TextInputDialog/showNumberDialog text-gui title caption default))
+
+(defn show-selection-list
+  [text-gui title caption items]
+  (ListSelectDialog/showDialog text-gui title caption
+                               ; FIXME -- we assume that there's always 5 rows of padding
+                               ; in the dialog.
+                               (- (.. text-gui getScreen getTerminalSize getRows) 5)
+                               (into-array items)))

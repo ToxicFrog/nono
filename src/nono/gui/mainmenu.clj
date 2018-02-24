@@ -17,8 +17,9 @@
   (if-let [puzzle (load/load-by-id *text-gui*)]
     (play-puzzle puzzle)))
 
-; (defn play-by-index []
-;   )
+(defn play-by-index [index-file]
+  (if-let [puzzle (load/load-by-index *text-gui* index-file)]
+    (play-puzzle puzzle)))
 
 (def main-menu-help
 "Select a puzzle category to select puzzles from a list,
@@ -28,9 +29,9 @@ Once in game, press 'h' or '?' for controls.")
 (def main-menu
   (Window "Nono"
     (ActionList
-      ; "Small Puzzles" #(index-menu "resources/index/nonograms.org.small")
-      ; "Medium Puzzles" #(index-menu "resources/index/nonograms.org.small")
-      ; "Large Puzzles" #(index-menu "resources/index/nonograms.org.small")
+      "Small Puzzles" #(play-by-index "index/nonograms.org.small")
+      "Medium Puzzles" #(play-by-index "index/nonograms.org.small")
+      "Large Puzzles" #(play-by-index "index/nonograms.org.small")
       "Enter Puzzle ID" play-by-id
       "Settings" #(show-message-dialog *text-gui* "Sorry!" "Not implemented yet." :OK)
       "Help" #(show-message-dialog *text-gui* "Help" main-menu-help)
