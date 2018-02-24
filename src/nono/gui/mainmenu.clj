@@ -9,27 +9,28 @@
             [lanterna.widgets :refer [ActionList]]
             [lanterna.gui :refer [Window *text-gui*]]))
 
+(defn play-puzzle [puzzle]
+  (game-ui/play-game *text-gui*
+                     (game/create-state puzzle)))
+
 (defn play-by-id []
-  (let [id (load/load-puzzle *text-gui*)
-        waiting (show-waiting-dialog *text-gui* "Loading"
-                                     (str "Downloading puzzle #" id))
-        game (some-> id ng/from-nonograms-org game/create-state)]
-    (.close waiting)
-    (if game
-      (game-ui/play-game *text-gui* game)
-      (show-message-dialog *text-gui* "Error"
-                           (str "Couldn't download puzzle #" id) :OK))))
+  (if-let [puzzle (load/load-by-id *text-gui*)]
+    (play-puzzle puzzle)))
+
+; (defn play-by-index []
+;   )
 
 (def main-menu-help
-  "   Choose a puzzle category to play nonograms.
-  Once in-game, press 'h' or '?' to bring up play instructions.")
+"Select a puzzle category to select puzzles from a list,
+or enter a nonograms.org puzzle ID directly.
+Once in game, press 'h' or '?' for controls.")
 
 (def main-menu
   (Window "Nono"
     (ActionList
-      ; "Small Puzzles" #(println "small puzzles")
-      ; "Medium Puzzles" #(println "medium puzzles")
-      ; "Large Puzzles" #(println "large puzzles")
+      ; "Small Puzzles" #(index-menu "resources/index/nonograms.org.small")
+      ; "Medium Puzzles" #(index-menu "resources/index/nonograms.org.small")
+      ; "Large Puzzles" #(index-menu "resources/index/nonograms.org.small")
       "Enter Puzzle ID" play-by-id
       "Settings" #(show-message-dialog *text-gui* "Sorry!" "Not implemented yet." :OK)
       "Help" #(show-message-dialog *text-gui* "Help" main-menu-help)

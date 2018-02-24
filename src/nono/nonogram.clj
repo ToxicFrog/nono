@@ -93,7 +93,7 @@
   [path]
   (-> path slurp from-json))
 
-(defn from-nonograms-org :- Nonogram
+(defn from-nonograms-org :- (s/maybe Nonogram)
   [id :- s/Int]
   (if-let [puzzle (downloader/get-puzzle id)]
     (let [[title grid] puzzle

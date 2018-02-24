@@ -3,7 +3,7 @@
   (:import (java.lang Enum)
            (com.googlecode.lanterna.gui2 Window$Hint)
            (com.googlecode.lanterna.gui2.dialogs MessageDialog MessageDialogButton
-                                                 WaitingDialog)))
+                                                 WaitingDialog TextInputDialog)))
 
 (defn show-message-dialog
   [text-gui title text & buttons]
@@ -18,3 +18,7 @@
     (.setHints waiting [Window$Hint/MODAL Window$Hint/CENTERED])
     (.updateScreen text-gui)
     waiting))
+
+(defn show-number-dialog
+  [text-gui title caption default]
+  (TextInputDialog/showNumberDialog text-gui title caption default))
