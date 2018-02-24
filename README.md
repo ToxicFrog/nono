@@ -1,7 +1,14 @@
 # Nono -- a nonogram game for the tty
 
-This is a simple curses-style nonogram player. It comes with a small number of
-Nonogram puzzles. Future versions will include an automatic downloader for more.
+This is a simple curses-style nonogram player. It comes with an index of puzzles
+from nonograms.org and will download the puzzles themselves on demand.
+
+It also has code to support loading puzzles from local JSON and text files, but
+this is not currently hooked up to the UI anywhere.
+
+It supports both TTY and graphical operation; if a display is available, it'll
+use its own built-in terminal emulator, otherwise it will display in the
+terminal you ran it from.
 
 ## License
 
