@@ -32,6 +32,7 @@
   "Create and initialize an empty MultiWindowTextGUI bound to the default terminal."
   [theme]
   (-> (DefaultTerminalFactory.)
+      (doto (.setPreferTerminalEmulator true))
       (.createTerminal)
       (doto (.setTitle "Nono"))
       (TerminalScreen.)
