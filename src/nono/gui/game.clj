@@ -12,18 +12,19 @@
 (defn statline-labeler [this game]
   ; TODO: move themes into a common file, or make a smarter PropertyTheme or something.
   (let [victory-theme (Theme "#00FF80" "#000000" :bold)
-        defeat-theme (Theme "#000000" "#FF0000" :bold)])
-  (cond
-    ; (game/won? game)  (do (.setTheme this (Theme "#00000" "#FF0000" :bold))
-    ;                    "❈❈❈❈❈❈❈\n❈ YOU ❈\n❈ WIN ❈\n❈❈❈❈❈❈❈")
-    ; (game/lost? game) (do (.setTheme this (Theme "#00000" "#FF0000" :bold))
-    ;                    "🕱🕱🕱🕱🕱🕱\n🕱GAME🕱\n🕱OVER🕱\n🕱🕱🕱🕱🕱🕱")
-    (game/won? game)  (.setTheme this )
-    (game/lost? game) (.setTheme this (Theme "#000000" "#FF0000" :bold)))
+        defeat-theme (Theme "#000000" "#FF0000" :bold)]
+    (cond
+      ; (game/won? game)  (do (.setTheme this (Theme "#00000" "#FF0000" :bold))
+      ;                    "❈❈❈❈❈❈❈\n❈ YOU ❈\n❈ WIN ❈\n❈❈❈❈❈❈❈")
+      ; (game/lost? game) (do (.setTheme this (Theme "#00000" "#FF0000" :bold))
+      ;                    "🕱🕱🕱🕱🕱🕱\n🕱GAME🕱\n🕱OVER🕱\n🕱🕱🕱🕱🕱🕱")
+      (game/won? game)  (.setTheme this victory-theme)
+      (game/lost? game) (.setTheme this defeat-theme)))
   (str
     (-> @game :puzzle :width) \× (-> @game :puzzle :height) \newline
     \( (-> @game :col) \, (-> @game :row) \) \newline
-    "ERR:" (-> @game :errors) \newline
+;    "ERR:" (-> @game :errors) \newline
+    \newline
     "h:help"))
 
 (defn- statline [game]

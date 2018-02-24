@@ -40,7 +40,7 @@
   It may also style the label by calling setTheme() or set*groundColour()."
   [labelfn & args]
   ; Pass "" at initialization time because we don't have a 'this pointer yet.
-  (proxy [com.googlecode.lanterna.gui2.Label] [""]
+  (proxy [com.googlecode.lanterna.gui2.Label] [(apply labelfn nil args)]
     ; This is an ugly hack. We can't override getText() because it isn't used
     ; during the drawing pass; the renderer accesses the label's internal text
     ; fields directly. Instead we override getThemeDefinition(), which is called
