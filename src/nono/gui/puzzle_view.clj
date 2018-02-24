@@ -4,6 +4,7 @@
   (:require [nono.game :as game]
             [schema.core :as s :refer [def defn]]
             [lanterna.widgets :refer [proxy-super-cls]]
+            [lanterna.gui :refer [*text-gui*]]
             [lanterna.containers :refer [GridPanel]]
             [nono.gui.help :as help]
             [clojure.core.matrix :as mx])
@@ -15,8 +16,6 @@
                 :full :empty
                 :empty :full
                 :mark :full})
-
-(def ^:dynamic *text-gui* nil)
 
 (defmulti press-button
   (fn dispatcher [keystroke & args] (.getCharacter keystroke)))
@@ -75,10 +74,9 @@
       (createDefaultRenderer [] (Button$FlatButtonRenderer.))
       (getLabel [] (labeler))
       (handleKeyStroke [keystroke]
-                       (binding [*text-gui* (.getTextGUI this)]
-                         (if (press-button keystroke game row col)
-                           Interactable$Result/HANDLED
-                           (proxy-super-cls Button handleKeyStroke keystroke))))
+                       (if (press-button keystroke game row col)
+                         Interactable$Result/HANDLED
+                         (proxy-super-cls Button handleKeyStroke keystroke)))
       (afterEnterFocus [how from]
                        (game/set-position! game row col)))))
 
